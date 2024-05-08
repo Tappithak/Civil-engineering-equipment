@@ -1,0 +1,64 @@
+img.logo-left {
+  width: 100px;
+  height: 100px;
+}
+
+img, video {
+  width: 200px;
+  height: 200px;
+}
+
+nav {
+  display: flex;
+  width: 100dvw;
+  justify-content: space-between;
+  padding: 15px;
+}
+
+h3.text-head {
+  width: 100%;
+  font-size: 27px;
+  display: flex;
+  align-items: center;
+  margin-left: 15px;
+}
+
+.logo-right{
+  background-image: url('./image/logo-r.jpg');	
+    width: 300px;
+    height: 100px;
+    border: 7px solid #fff;
+    border-radius: 111px 1px 93px 1px;
+    box-shadow: inset 0px 0px 20px 14px #fff;
+    background-size: cover;
+}
+
+.content-under {
+  display: flex;
+  justify-content: flex-end;
+  padding: 7px;
+  background-color: #88828f;
+}
+
+.content-nav {
+  position: fixed;
+  z-index: 99;
+  background-color: #fff;
+}
+
+.content-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  overflow-x: auto;
+  height: 541px;
+  justify-content: center;
+  padding-top: 230px;
+  margin: auto;
+  padding-bottom: 50px;
+}
+
+.card-title {
+  justify-content: center;
+
+}
