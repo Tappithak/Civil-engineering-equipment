@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import './App.css'
 import Nav from './component/nav.jsx'
-import Home from './component/home.jsx'
-import Footer from './component/footer.jsx'
 
 function App() {
 
@@ -10,8 +8,6 @@ function App() {
     <>
 
     <Nav />
-    <Home />
-    <Footer />
 
      </>
   )

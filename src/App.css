@@ -1,11 +1,17 @@
-img.logo-left {
-  width: 100px;
-  height: 100px;
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
+
+*{
+  font-family: "Sarabun", sans-serif;
 }
 
-img, video {
-  width: 200px;
-  height: 200px;
+img.logo-left {
+  width: 50px;
+  height: 50px;
+}
+
+.imgMenu {
+  max-width: 100%;
+  height: 150px !important;
 }
 
 nav {
@@ -13,6 +19,13 @@ nav {
   width: 100dvw;
   justify-content: space-between;
   padding: 15px;
+}
+
+.navbar.bg-base-100 {
+  box-shadow: 0px 2px 20px 0px #b9b9b9;
+  border-radius: 8px;
+  z-index: 99;
+  position: relative;
 }
 
 h3.text-head {
@@ -23,14 +36,20 @@ h3.text-head {
   margin-left: 15px;
 }
 
-.logo-right{
-  background-image: url('./image/logo-r.jpg');	
-    width: 300px;
-    height: 100px;
-    border: 7px solid #fff;
-    border-radius: 111px 1px 93px 1px;
-    box-shadow: inset 0px 0px 20px 14px #fff;
-    background-size: cover;
+.logo-right {
+  background-image: url(/src/image/logo-r.jpg);
+  width: 125px;
+  height: 56px;
+  border: 7px solid #fff;
+  border-radius: 111px 1px 93px 1px;
+  box-shadow: inset 0px 0px 20px 14px #fff;
+  background-size: cover;
+  translate: -59px -2px;
+    z-index: -1;
+}
+
+input.input.input-bordered.w-24.md\:w-auto {
+  background-color: #fff0;
 }
 
 .content-under {
@@ -51,14 +70,186 @@ h3.text-head {
   flex-wrap: wrap;
   gap: 15px;
   overflow-x: auto;
-  height: 541px;
+  height: 601px;
   justify-content: center;
-  padding-top: 230px;
+  padding-top: 35px;
   margin: auto;
   padding-bottom: 50px;
 }
 
-.card-title {
+.card-title.text-center {
   justify-content: center;
+  height: 30px !important;
+  font-size: 1.10rem;
+}
 
+
+.card-body {
+  justify-content: center;
+}
+
+.card.card-compact.w-60.bg-base-100.shadow-xl {
+  height: 216px !important;
+}
+
+.card.card-compact.w-60.bg-base-100.shadow-xl:hover {
+  transform: scale(0.9);
+  cursor: pointer;
+  transition: .3s;
+}
+
+/* =================  CSS Phones ================= */
+
+@media screen and (max-width: 600px){
+  a.ml-3.text-2xl {
+    font-size: 16px !important;
+}
+
+input.input.input-bordered.w-24.md\:w-auto {
+  width: 130px;
+  height: 40px;
+}
+
+.card.card-compact.w-60.bg-base-100.shadow-xl {
+  width: 173px !important;
+  height: 200px !important;
+}
+
+.overflow-x-auto {
+  height: 538px !important;
+}
+
+.bg-page{
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  height: 221px !important;
+  width: 370px !important;
+  position: absolute;
+  bottom: 80px !important;
+  right: 0px !important;
+  z-index: -1;
+  box-shadow: inset 0px 0px 16px 19px #fff;
+  opacity: 0.5;
+}
+
+.content-map {
+  display: grid;
+  grid-template-columns: 1fr !important;
+  padding: 30px;
+  overflow-x: auto !important;
+  height: 535px !important;
+}
+
+#container {
+  height: 500px !important;
+}
+
+}
+
+/* =================  CSS Table ================= */
+
+.table {
+  font-size: 12px;
+  display: table;
+  text-align: center;
+}
+
+.overflow-x-auto {
+  height: 600px;
+}
+
+table.table.table-zebra thead {
+  font-size: 17px;
+}
+
+.table thead th { 
+  position: sticky; 
+  top: 0; 
+  background-color: #ffffffa6;
+}
+
+
+
+/* =================  CSS loader ================= */
+
+.loader {
+  display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: #7370843b;
+    z-index: 999;
+}
+.book-wrapper {
+  width: 150px;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+}
+.book {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.137));
+}
+.book-wrapper .book-page {
+  width: 50%;
+  height: auto;
+  position: absolute;
+  animation: paging 0.15s linear infinite;
+  transform-origin: left;
+}
+@keyframes paging {
+  0% {
+    transform: rotateY(0deg) skewY(0deg);
+  }
+  50% {
+    transform: rotateY(90deg) skewY(-20deg);
+  }
+  100% {
+    transform: rotateY(180deg) skewY(0deg);
+  }
+}
+
+.bg-page{
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  height: 470px;
+  width: 600px;
+  position: absolute;
+  bottom: 80px;
+  right: 19px;
+  z-index: -1;
+  box-shadow: inset 0px 0px 16px 19px #fff;
+  opacity: 0.5;
+}
+
+/* =================  CSS  Map ================= */
+
+#container {
+  height: 550px;
+  min-width: 310px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.loading {
+  margin-top: 10em;
+  text-align: center;
+  color: gray;
+}
+
+.content-map {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  padding: 30px;
+}
+
+text.highcharts-title {
+  display: none;
 }
