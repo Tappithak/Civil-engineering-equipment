@@ -6,7 +6,7 @@ import { HiOutlineDotsCircleHorizontal } from "react-icons/hi";
 import { IoHome } from "react-icons/io5";
 import { Link , useNavigate} from "react-router-dom"
 import { HiOutlineDocumentReport } from "react-icons/hi";
-import Data from "../assets/data/data.json";
+
 
 export default function tableListAll() {
   const config = "action=gethubData&username=adminDB&password=Ad1234n";
@@ -15,16 +15,16 @@ export default function tableListAll() {
   const [memust, setmemust] = useState("");
   const [ load , setload] =  useState(false);
   const [ background , setbackground] =  useState("");
-  const [ dataImg , setDataImg ]  = useState(Data);
+  const [ dataImg , setDataImg ]  = useState(JSON.parse(localStorage.getItem("dataMenu")));
   const navigate = useNavigate();
   
 
   
   function findBg(){
     let resualt = "";
-    for(var i=0;i<Data.length;i++) {
-      if(Data[i].name == localStorage.getItem("listSel")){
-        resualt = Data[i].img;
+    for(var i=0;i<dataImg.length;i++) {
+      if(dataImg[i].name == localStorage.getItem("listSel")){
+        resualt = dataImg[i].img;
       }
     }
     setbackground(resualt)
@@ -173,7 +173,7 @@ load ?
           </div>
         </div>
       </div>
-
+      <div className="content-tableList">
       <div className="overflow-x-auto">
         <table className="table table-zebra">
           <thead>
@@ -214,6 +214,7 @@ load ?
 
           </tbody>
         </table>
+      </div>
       </div>
 
 

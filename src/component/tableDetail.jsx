@@ -6,7 +6,7 @@ import { HiOutlineDotsCircleHorizontal } from "react-icons/hi";
 import { IoHome } from "react-icons/io5";
 import { Link } from "react-router-dom"
 import { HiOutlineDocumentReport } from "react-icons/hi";
-import Data from "../assets/data/data.json";
+
 
 
 
@@ -16,7 +16,7 @@ export default function detail() {
     const [data, setData] = useState([]);
     const [ load , setload] =  useState(false);
     const [ background , setbackground] =  useState("");
-  const [ dataImg , setDataImg ]  = useState(Data);
+    const [ dataImg , setDataImg ]  = useState(JSON.parse(localStorage.getItem("dataMenu")));
 
     const fetchData = async () => {
         try {
@@ -39,9 +39,9 @@ export default function detail() {
 
       function findBg(){
         let resualt = "";
-        for(var i=0;i<Data.length;i++) {
-          if(Data[i].name == localStorage.getItem("listSel")){
-            resualt = Data[i].img;
+        for(var i=0;i<dataImg.length;i++) {
+          if(dataImg[i].name == localStorage.getItem("listSel")){
+            resualt = dataImg[i].img;
           }
         }
         setbackground(resualt)

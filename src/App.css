@@ -25,7 +25,7 @@ nav {
   box-shadow: 0px 2px 20px 0px #b9b9b9;
   border-radius: 8px;
   z-index: 99;
-  position: relative;
+  position: fixed;
 }
 
 h3.text-head {
@@ -72,9 +72,9 @@ input.input.input-bordered.w-24.md\:w-auto {
   overflow-x: auto;
   height: 601px;
   justify-content: center;
-  padding-top: 35px;
+  padding-top: 90px;
   margin: auto;
-  padding-bottom: 50px;
+  padding-bottom: 100px;
 }
 
 .card-title.text-center {
@@ -102,7 +102,8 @@ input.input.input-bordered.w-24.md\:w-auto {
 
 @media screen and (max-width: 600px){
   a.ml-3.text-2xl {
-    font-size: 16px !important;
+    font-size: 14px !important;
+    font-weight: 500;
 }
 
 input.input.input-bordered.w-24.md\:w-auto {
@@ -111,20 +112,21 @@ input.input.input-bordered.w-24.md\:w-auto {
 }
 
 .card.card-compact.w-60.bg-base-100.shadow-xl {
-  width: 173px !important;
-  height: 200px !important;
+  width: 165px !important;
+  height: 190px !important;
 }
 
 .overflow-x-auto {
-  height: 538px !important;
+  height: 456px !important;
+  padding-top: 70px;
 }
 
 .bg-page{
   background-position: center center;
   background-size: cover;
   background-repeat: no-repeat;
-  height: 221px !important;
-  width: 370px !important;
+  height: 210px !important;
+  width: 350px !important;
   position: absolute;
   bottom: 80px !important;
   right: 0px !important;
@@ -136,13 +138,17 @@ input.input.input-bordered.w-24.md\:w-auto {
 .content-map {
   display: grid;
   grid-template-columns: 1fr !important;
-  padding: 30px;
+  padding: 15px !important;
   overflow-x: auto !important;
   height: 535px !important;
 }
 
 #container {
   height: 500px !important;
+}
+
+.content-tableList {
+  padding-top: 0px !important;
 }
 
 }
@@ -156,7 +162,7 @@ input.input.input-bordered.w-24.md\:w-auto {
 }
 
 .overflow-x-auto {
-  height: 600px;
+  height: 475px;
 }
 
 table.table.table-zebra thead {
@@ -247,9 +253,13 @@ table.table.table-zebra thead {
 .content-map {
   display: grid;
   grid-template-columns: 1fr 2fr;
-  padding: 30px;
+  padding: 85px;
 }
 
 text.highcharts-title {
   display: none;
+}
+
+.content-tableList {
+  padding-top: 70px;
 }

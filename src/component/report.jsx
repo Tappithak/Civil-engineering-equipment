@@ -6,7 +6,7 @@ import { HiOutlineDotsCircleHorizontal } from "react-icons/hi";
 import { IoHome } from "react-icons/io5";
 import { Link } from "react-router-dom"
 import { HiOutlineDocumentReport } from "react-icons/hi";
-import Data from "../assets/data/data.json";
+
 
 
 
@@ -16,7 +16,6 @@ export default function detail() {
     const [data, setData] = useState([]);
     const [ load , setload] =  useState(false);
     const [ background , setbackground] =  useState("");
-  const [ dataImg , setDataImg ]  = useState(Data);
 
     const fetchData = async () => {
         try {
@@ -36,16 +35,6 @@ export default function detail() {
         }
       };
 
-
-      function findBg(){
-        let resualt = "";
-        for(var i=0;i<Data.length;i++) {
-          if(Data[i].name == localStorage.getItem("listSel")){
-            resualt = Data[i].img;
-          }
-        }
-        setbackground(resualt)
-      }
 
       (async () => {
 
@@ -247,10 +236,10 @@ load ?
           </thead>
           <tbody>
             {
-            (data.filter(item => item.group.includes(localStorage.getItem("typeSel")))  ).length > 0 ?
+            (data.filter(item => item.group !="" )  ).length > 0 ?
             
             data
-              .filter(item => item.group.includes(localStorage.getItem("typeSel"))  && (item.number.includes(search) || item.tra.includes(search) )  )
+              .filter(item => item.group !=""  && (item.number.includes(search) || item.tra.includes(search) )  )
               .map((item, index) => {
                 return (
                   <tr key={index}>
@@ -279,11 +268,11 @@ load ?
    
       </div>
 
-      <div className="bg-page" style={{
+      {/* <div className="bg-page" style={{
         backgroundImage: "url(" + background + ")"
         }}>
 
-      </div>
+      </div> */}
    
    
    
