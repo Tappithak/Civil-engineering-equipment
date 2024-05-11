@@ -1,6 +1,5 @@
 import Logoleft from "../image/logo-l.jfif";
 import { useEffect, useState } from "react";
-import Data from "../assets/data/data.json";
 import { Link , useNavigate} from "react-router-dom";
 import  Table  from "../component/tableListAll"
 import { HiTableCells } from "react-icons/hi2";
@@ -32,6 +31,7 @@ export default function nav() {
       );
       localStorage.setItem('dataMenu', JSON.stringify(res.data))
       setData(res.data);
+
     } catch (error) {
       setload(false);
       console.log(error);
@@ -156,7 +156,9 @@ load ?
 
 <div className="content-menu">
       {
-      data.filter(item => item.name.includes(search) && item.id != "").map((item) => {
+      data.filter(item => item.name.includes(search) && item.id != "")
+      .sort((a, b) => b.num - a.num)
+      .map((item) => {
         return (
           <div className="card card-compact w-60 bg-base-100 shadow-xl" key={item.id} onClick={()=>moveByname(item.name)}>
             <figure>

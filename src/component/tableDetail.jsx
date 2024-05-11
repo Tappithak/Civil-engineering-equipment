@@ -27,14 +27,135 @@ export default function detail() {
           );
     
           setData(res.data);
+          countLocation(res.data)
         } catch (error) {
           setload(false);
           console.log(error);
         }finally{
           setload(false);
+         
           findBg();
         }
       };
+
+      function countLocation(datalocal){
+        var cb = []
+        var sm = []
+        var sk = []
+        var png = []
+        var nt = []
+        var tt = []
+        var bm = []
+        var nm = []
+
+        for(var i=0;i<datalocal.length;i++){
+          if(datalocal[i].location == "ชลบุรี" && datalocal[i].group == localStorage.getItem("typeSel")){
+            cb.push(datalocal[i].location)
+          }
+          else if(datalocal[i].location == "สมุทรปราการ" && datalocal[i].group == localStorage.getItem("typeSel")){
+            sm.push(datalocal[i].location)
+          }
+          else if(datalocal[i].location == "สงขลา" && datalocal[i].group == localStorage.getItem("typeSel")){
+            sk.push(datalocal[i].location)
+          }
+          else if(datalocal[i].location == "พังงา" && datalocal[i].group == localStorage.getItem("typeSel")){
+            png.push(datalocal[i].location)
+          }
+          else if(datalocal[i].location == "นครปฐม" && datalocal[i].group == localStorage.getItem("typeSel")){
+            nt.push(datalocal[i].location)
+          }
+          else if(datalocal[i].location == "ตราด" && datalocal[i].group == localStorage.getItem("typeSel")){
+            tt.push(datalocal[i].location)
+          }
+          else if(datalocal[i].location == "กรุงเทพ" && datalocal[i].group == localStorage.getItem("typeSel")){
+            bm.push(datalocal[i].location)
+          }
+          else if(datalocal[i].location == "นครพนม" && datalocal[i].group == localStorage.getItem("typeSel")){
+            nm.push(datalocal[i].location)
+          }
+        }
+        // console.log(chonburi)
+        // setchonburi(chonburi.length)
+
+        (async () => {
+         
+          const topology = await fetch(
+              'https://code.highcharts.com/mapdata/countries/th/th-all.topo.json'
+          ).then(response => response.json());
+      
+          // Prepare demo data. The data is joined to map using value of 'hc-key'
+          // property by default. See API docs for 'joinBy' for more info on linking
+          // data and map.
+          const dataLocation = [
+              ['th-ct', 0], ['th-4255', 0], ['th-pg', png.length], ['th-st', 0],
+              ['th-kr', 0], ['th-sa', 0], ['th-tg', 0], ['th-tt', tt.length],
+              ['th-pl', 0], ['th-ps', 0], ['th-kp', 0], ['th-pc', 0],
+              ['th-sh', 0], ['th-at', 0], ['th-lb', 0], ['th-pa', 0],
+              ['th-np', nt.length], ['th-sb', 0], ['th-cn', 0], ['th-bm', bm.length],
+              ['th-pt', 0], ['th-no', 0], ['th-sp', sm.length], ['th-ss', 0],
+              ['th-sm', 0], ['th-pe', 0], ['th-cc', 0], ['th-nn', 0],
+              ['th-cb', cb.length], ['th-br', 0], ['th-kk', 0], ['th-ph', 0],
+              ['th-kl', 0], ['th-sr', 0], ['th-nr', 0], ['th-si', 0],
+              ['th-re', 0], ['th-le', 0], ['th-nk', 0], ['th-ac', 0],
+              ['th-md', 0], ['th-sn', 0], ['th-nw', 0], ['th-pi', 0],
+              ['th-rn', 0], ['th-nt', 0], ['th-sg', sk.length], ['th-pr', 0],
+              ['th-py', 0], ['th-so', 0], ['th-ud', 0], ['th-kn', 0],
+              ['th-tk', 0], ['th-ut', 0], ['th-ns', 0], ['th-pk', 0],
+              ['th-ur', 0], ['th-sk', 0], ['th-ry', 0], ['th-cy', 0],
+              ['th-su', 0], ['th-nf', nm.length], ['th-bk', 0], ['th-mh', 0],
+              ['th-pu', 0], ['th-cp', 0], ['th-yl', 0], ['th-cr', 0],
+              ['th-cm', 0], ['th-ln', 0], ['th-na', 0], ['th-lg', 0],
+              ['th-pb', 0], ['th-rt', 0], ['th-ys', 0], ['th-ms', 0],
+              ['th-un', 0], ['th-nb', 0]
+          ];
+      
+          // Create the chart
+          Highcharts.mapChart('container', {
+              chart: {
+                  map: topology
+              },
+      
+              title: {
+                  text: 'Highcharts Maps basic demo'
+              },
+      
+              subtitle: {
+                  text: 'Source map: <a href="http://code.highcharts.com/mapdata/countries/th/th-all.topo.json">Thailand</a>'
+              },
+      
+              mapNavigation: {
+                  enabled: true,
+                  buttonOptions: {
+                      verticalAlign: 'bottom'
+                  }
+              },
+      
+              colorAxis: {
+                  min: 0,
+                  max: 1
+              },
+              tooltip: {
+                valueDecimals: 0,
+                valueSuffix: ' คัน'
+            },
+      
+              series: [{
+                  data: dataLocation,
+                  name: 'จำนวนรถ',
+                  states: {
+                      hover: {
+                          color: '#BADA55'
+                      }
+                  },
+                  dataLabels: {
+                      enabled: true,
+                      format: '{point.value:.0f}'
+                  }
+              }]
+          });
+      
+      })();
+      }
 
 
       function findBg(){
@@ -47,79 +168,7 @@ export default function detail() {
         setbackground(resualt)
       }
 
-      (async () => {
-
-        const topology = await fetch(
-            'https://code.highcharts.com/mapdata/countries/th/th-all.topo.json'
-        ).then(response => response.json());
-    
-        // Prepare demo data. The data is joined to map using value of 'hc-key'
-        // property by default. See API docs for 'joinBy' for more info on linking
-        // data and map.
-        const data = [
-            ['th-ct', 0], ['th-4255', 0], ['th-pg', 0], ['th-st', 0],
-            ['th-kr', 0], ['th-sa', 0], ['th-tg', 0], ['th-tt', 0],
-            ['th-pl', 0], ['th-ps', 0], ['th-kp', 0], ['th-pc', 0],
-            ['th-sh', 0], ['th-at', 0], ['th-lb', 0], ['th-pa', 0],
-            ['th-np', 0], ['th-sb', 0], ['th-cn', 0], ['th-bm', 0],
-            ['th-pt', 0], ['th-no', 0], ['th-sp', 0], ['th-ss', 0],
-            ['th-sm', 0], ['th-pe', 0], ['th-cc', 0], ['th-nn', 0],
-            ['th-cb', 0], ['th-br', 0], ['th-kk', 0], ['th-ph', 0],
-            ['th-kl', 0], ['th-sr', 0], ['th-nr', 0], ['th-si', 0],
-            ['th-re', 0], ['th-le', 0], ['th-nk', 0], ['th-ac', 0],
-            ['th-md', 0], ['th-sn', 0], ['th-nw', 0], ['th-pi', 0],
-            ['th-rn', 0], ['th-nt', 0], ['th-sg', 0], ['th-pr', 0],
-            ['th-py', 0], ['th-so', 0], ['th-ud', 0], ['th-kn', 0],
-            ['th-tk', 0], ['th-ut', 0], ['th-ns', 0], ['th-pk', 0],
-            ['th-ur', 0], ['th-sk', 0], ['th-ry', 0], ['th-cy', 0],
-            ['th-su', 0], ['th-nf', 0], ['th-bk', 0], ['th-mh', 0],
-            ['th-pu', 0], ['th-cp', 0], ['th-yl', 0], ['th-cr', 0],
-            ['th-cm', 0], ['th-ln', 0], ['th-na', 0], ['th-lg', 0],
-            ['th-pb', 0], ['th-rt', 0], ['th-ys', 0], ['th-ms', 0],
-            ['th-un', 0], ['th-nb', 1]
-        ];
-    
-        // Create the chart
-        Highcharts.mapChart('container', {
-            chart: {
-                map: topology
-            },
-    
-            title: {
-                text: 'Highcharts Maps basic demo'
-            },
-    
-            subtitle: {
-                text: 'Source map: <a href="http://code.highcharts.com/mapdata/countries/th/th-all.topo.json">Thailand</a>'
-            },
-    
-            mapNavigation: {
-                enabled: true,
-                buttonOptions: {
-                    verticalAlign: 'bottom'
-                }
-            },
-    
-            colorAxis: {
-                min: 0
-            },
-    
-            series: [{
-                data: data,
-                name: 'Random data',
-                states: {
-                    hover: {
-                        color: '#BADA55'
-                    }
-                },
-                dataLabels: {
-                    enabled: true,
-                    format: '{point.name}'
-                }
-            }]
-        });
-    
-    })();
+      
 
       useEffect(() => {
         // setmemust("listall")
@@ -250,7 +299,7 @@ load ?
             (data.filter(item => item.group.includes(localStorage.getItem("typeSel")))  ).length > 0 ?
             
             data
-              .filter(item => item.group.includes(localStorage.getItem("typeSel"))  && (item.number.includes(search) || item.tra.includes(search) )  )
+              .filter(item => item.group.includes(localStorage.getItem("typeSel"))  && (item.number.includes(search) || item.tra.includes(search) ) )
               .map((item, index) => {
                 return (
                   <tr key={index}>
