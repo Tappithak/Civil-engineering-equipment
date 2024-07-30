@@ -140,7 +140,7 @@ export default function tableListAll() {
       ) : (
         <div></div>
       )}
-      <div className="navbar bg-base-100">
+      <nav className="navbar bg-base-100 h-[90px] shadow">
         <div className="flex-1">
           <img className="logo-left" src={Logoleft} alt={Logoleft}></img>
           <a className="ml-3 text-2xl">ยุทโธปกรณ์สายช่างโยธา</a>
@@ -157,11 +157,11 @@ export default function tableListAll() {
             {/* <div className="logo-right"></div> */}
           </div>
         </div>
-      </div>
-      <div className="content-tableList">
-        <div className="overflow-x-auto">
+      </nav>
+      <div className="pt-[90px] pb-[80px]  overflow-auto" style={{height:"calc(100dvh - 66px)"}}>
+        <div className="h-full">
           <table className="table table-zebra">
-            <thead>
+            <thead className="sticky top-0">
               <tr>
                 <th>รายการ</th>
                 <th>สถานะ</th>

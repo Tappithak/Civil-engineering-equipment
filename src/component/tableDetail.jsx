@@ -265,7 +265,7 @@ load ?
     }
 
 
-      <div className="navbar bg-base-100">
+      <nav className="navbar bg-base-100 h-[90px] shadow">
         <div className="flex-1">
           <img className="logo-left" src={Logoleft} alt={Logoleft}></img>
           <a className="ml-3 text-2xl">ยุทโธปกรณ์สายช่างโยธา</a>
@@ -282,10 +282,10 @@ load ?
             {/* <div className="logo-right"></div> */}
           </div>
         </div>
-      </div>
+      </nav>
 
-   <div className="content-map">
-   <div className="overflow-x-auto">
+      <div className="grid grid-cols-1 xl:grid-cols-3 overflow-auto justify-items-center gap-3 pt-[90px] pb-[80px] xl:h-[100dvh]">
+      <div className="overflow-auto xl:h-full h-[600px] flex">
         <table className="table table-zebra">
           <thead>
             <tr>
