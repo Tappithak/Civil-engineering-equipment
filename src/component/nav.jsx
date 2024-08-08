@@ -142,7 +142,7 @@ export default function nav() {
           </div>
         </div>
       </nav>
-      <div className="pt-[90px] pb-[80px]">
+      <div className="pt-[95px] pb-[80px]" style={{zoom:"90%"}}>
         <div className="grid xl:grid-cols-6 xl:gap-4 p-3 md:grid-cols-3 md:gap-3  grid-cols-2  gap-3 justify-items-center">
           {data
             .filter((item) => item.name.includes(search) && item.id != "")
