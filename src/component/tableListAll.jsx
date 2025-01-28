@@ -30,23 +30,7 @@ export default function tableListAll() {
     setbackground(resualt);
   }
 
-  const fetchData = async () => {
-    try {
-      setload(true);
-      const res = await axios.get(
-        "https://script.google.com/macros/s/AKfycbyEb5N44PQzmHgurDXn2_-EWSAKyOuwYcy9-SElYBloJeJR9LzOHskbRUbvGHUInqPE/exec?" +
-          config
-      );
-      setData(res.data);
-      console.log(res.data)
-    } catch (error) {
-      setload(false);
-      console.log(error);
-    } finally {
-      setload(false);
-      findBg();
-    }
-  };
+  
 
   function moveTodetails(val) {
     localStorage.setItem("typeSel", val);
@@ -54,6 +38,25 @@ export default function tableListAll() {
   }
 
   useEffect(() => {
+
+    const fetchData = async () => {
+      try {
+        setload(true);
+        const res = await axios.get(
+          "https://script.google.com/macros/s/AKfycbyEb5N44PQzmHgurDXn2_-EWSAKyOuwYcy9-SElYBloJeJR9LzOHskbRUbvGHUInqPE/exec?" +
+            config
+        );
+        setData(res.data);
+      } catch (error) {
+        setload(false);
+        console.log(error);
+      } finally {
+        setload(false);
+        findBg();
+      }
+    };
+
+
     setmemust("listall");
     fetchData();
   }, []);

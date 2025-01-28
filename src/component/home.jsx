@@ -1,12 +1,13 @@
 import Logoleft from "../image/logo-l.jfif";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Table from "../component/tableListAll";
+import Table from "./tableListAll.jsx";
 import { HiTableCells } from "react-icons/hi2";
 import { HiOutlineDotsCircleHorizontal } from "react-icons/hi";
 import { IoHome } from "react-icons/io5";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import axios from "axios";
+import Navbar from "./navbar.jsx";
 
 export default function nav() {
   const [search, setsearch] = useState("");
@@ -18,28 +19,6 @@ export default function nav() {
     navigate("/tablelist");
     localStorage.setItem("listSel", type);
   }
-
-  const config = "action=gethubImg&username=adminDB&password=Ad1234n";
-  const fetchData = async () => {
-    try {
-      setload(true);
-      const res = await axios.get(
-        "https://script.google.com/macros/s/AKfycbyEb5N44PQzmHgurDXn2_-EWSAKyOuwYcy9-SElYBloJeJR9LzOHskbRUbvGHUInqPE/exec?" +
-          config
-      );
-      localStorage.setItem("dataMenu", JSON.stringify(res.data));
-      setData(res.data);
-    } catch (error) {
-      setload(false);
-      console.log(error);
-    } finally {
-      setload(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   return (
     <>
@@ -124,25 +103,8 @@ export default function nav() {
         <div></div>
       )}
 
-      <nav className="navbar bg-base-100 h-[90px] shadow">
-        <div className="flex-1">
-          <img className="logo-left" src={Logoleft} alt={Logoleft}></img>
-          <a className="ml-3 text-2xl">ยุทโธปกรณ์สายช่างโยธา</a>
-        </div>
-        <div className="flex-none gap-2">
-          <div className="form-control d-flex flex-row">
-            <input
-              type="text"
-              placeholder="ค้นหา"
-              className="input input-bordered w-24 md:w-auto"
-              value={search}
-              onChange={(e) => setsearch(e.target.value)}
-            />
-            {/* <div className="logo-right"></div> */}
-          </div>
-        </div>
-      </nav>
-      <div className="pt-[95px] pb-[80px]" style={{zoom:"90%"}}>
+      <Navbar search={search} setsearch={setsearch} setload={setload} setData={setData}/>
+      <div className="pt-[95px] pb-[80px]" style={{ zoom: "90%" }}>
         <div className="grid xl:grid-cols-6 xl:gap-4 p-3 md:grid-cols-3 md:gap-3  grid-cols-2  gap-3 justify-items-center">
           {data
             .filter((item) => item.name.includes(search) && item.id != "")
@@ -150,7 +112,7 @@ export default function nav() {
             .map((item) => {
               return (
                 <div
-                  className="card card-compact w-60 bg-base-100 shadow-xl"
+                  className="card card-compact w-60 bg-base-100 shadow-xl p-2"
                   key={item.id}
                   onClick={() => moveByname(item.name)}
                 >
@@ -158,7 +120,9 @@ export default function nav() {
                     <img className="imgMenu" src={item.img} alt={item.name} />
                   </figure>
                   <div className="card-body">
-                    <div className="card-title text-center text-xs">{item.name}</div>
+                    <div className="card-title text-center !text-[0.9rem] sm:text-[1rem] md:text-[1.1rem] lg:text-[1.2rem] xl:text-[1.3rem]">
+                      {item.name}
+                    </div>
                   </div>
                 </div>
               );

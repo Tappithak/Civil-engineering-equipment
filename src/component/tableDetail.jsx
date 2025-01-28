@@ -18,25 +18,7 @@ export default function detail() {
     const [ background , setbackground] =  useState("");
     const [ dataImg , setDataImg ]  = useState(JSON.parse(localStorage.getItem("dataMenu")));
 
-    const fetchData = async () => {
-        try {
-          setload(true);
-          const res = await axios.get(
-            "https://script.google.com/macros/s/AKfycbyEb5N44PQzmHgurDXn2_-EWSAKyOuwYcy9-SElYBloJeJR9LzOHskbRUbvGHUInqPE/exec?" +
-              config
-          );
     
-          setData(res.data);
-          countLocation(res.data)
-        } catch (error) {
-          setload(false);
-          console.log(error);
-        }finally{
-          setload(false);
-         
-          findBg();
-        }
-      };
 
       function countLocation(datalocal){
         var cb = []
@@ -171,7 +153,26 @@ export default function detail() {
       
 
       useEffect(() => {
-        // setmemust("listall")
+        const fetchData = async () => {
+          try {
+            setload(true);
+            const res = await axios.get(
+              "https://script.google.com/macros/s/AKfycbyEb5N44PQzmHgurDXn2_-EWSAKyOuwYcy9-SElYBloJeJR9LzOHskbRUbvGHUInqPE/exec?" +
+                config
+            );
+      
+            setData(res.data);
+            countLocation(res.data)
+          } catch (error) {
+            setload(false);
+            console.log(error);
+          }finally{
+            setload(false);
+           
+            findBg();
+          }
+        };
+        
         fetchData();
       }, []);
 
