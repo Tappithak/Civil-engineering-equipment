@@ -4,6 +4,7 @@ import App from './App.jsx'
 import List from './component/tableListAll.jsx'
 import Detail from './component/tableDetail.jsx'
 import Report from './component/report.jsx'
+import Login from './component/login.jsx'
 import './index.css'
 import {
   createBrowserRouter,
@@ -13,7 +14,7 @@ import {
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />
+    element: <Login />
 
   },
   {
@@ -35,8 +36,8 @@ const router = createBrowserRouter([
 
 
   {
-    path: "about",
-    element: <div>About</div>,
+    path: "/menu",
+    element: <App />,
   },
 ]);
 

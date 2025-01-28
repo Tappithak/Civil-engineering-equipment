@@ -2,7 +2,7 @@ import * as React from "react";
 import Logoleft from "../image/logo-l.jfif";
 import axios from "axios";
 
-export default function navbar({search,setsearch,setload,setData}) {
+export default function navbar({search,setsearch,setload,setData,setbackground}) {
     React.useEffect(() => {
         const config = "action=gethubImg&username=adminDB&password=Ad1234n";
         const fetchData = async () => {
@@ -13,6 +13,15 @@ export default function navbar({search,setsearch,setload,setData}) {
                 config
             );
             setData(res.data);
+
+              let resualt = "";
+              for (var i = 0; i < res.data.length; i++) {
+                if (res.data[i].name == localStorage.getItem("listSel")) {
+                  resualt = res.data[i].img;
+                }
+              }
+              setbackground(resualt);
+
           } catch (error) {
             setload(false);
             console.log(error);
@@ -35,7 +44,7 @@ export default function navbar({search,setsearch,setload,setData}) {
           <input
             type="text"
             placeholder="ค้นหาเมนู"
-            className="input input-bordered w-24 md:w-auto"
+            className="input input-bordered w-full sm:w-24 md:w-auto"
             value={search}
             onChange={(e) => setsearch(e.target.value)}
           />
@@ -47,7 +56,7 @@ export default function navbar({search,setsearch,setload,setData}) {
             className="btn btn-ghost btn-circle avatar"
           >
             <div className="w-10 rounded-full">
-            <span class="text-3xl">D</span>
+            <span className="text-3xl">D</span>
             </div>
           </div>
           <ul

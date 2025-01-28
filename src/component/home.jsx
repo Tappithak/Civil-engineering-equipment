@@ -1,19 +1,15 @@
 import Logoleft from "../image/logo-l.jfif";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Table from "./tableListAll.jsx";
-import { HiTableCells } from "react-icons/hi2";
-import { HiOutlineDotsCircleHorizontal } from "react-icons/hi";
-import { IoHome } from "react-icons/io5";
-import { HiOutlineDocumentReport } from "react-icons/hi";
-import axios from "axios";
 import Navbar from "./navbar.jsx";
+import Footer from "./footer.jsx";
 
 export default function nav() {
   const [search, setsearch] = useState("");
   const navigate = useNavigate();
   const [load, setload] = useState(false);
   const [data, setData] = useState([]);
+  const [background, setbackground] = useState("");
 
   function moveByname(type) {
     navigate("/tablelist");
@@ -103,7 +99,7 @@ export default function nav() {
         <div></div>
       )}
 
-      <Navbar search={search} setsearch={setsearch} setload={setload} setData={setData}/>
+      <Navbar search={search} setsearch={setsearch} setload={setload} setData={setData} setbackground={setbackground}/>
       <div className="pt-[95px] pb-[80px]" style={{ zoom: "90%" }}>
         <div className="grid xl:grid-cols-6 xl:gap-4 p-3 md:grid-cols-3 md:gap-3  grid-cols-2  gap-3 justify-items-center">
           {data
@@ -131,24 +127,8 @@ export default function nav() {
       </div>
 
       {/* =============== Footer  =============== */}
-
-      <div className="btm-nav">
-        <button className="active bg-pink-200 text-pink-600">
-          <IoHome />
-          <span className="btm-nav-label">Home</span>
-        </button>
-        <Link
-          className=" bg-blue-200 text-blue-600 border-blue-600"
-          to="/tablelist"
-        >
-          <HiTableCells />
-          <span className="btm-nav-label">รายการ</span>
-        </Link>
-        <Link className="bg-teal-200 text-teal-600" to="/report">
-          <HiOutlineDocumentReport />
-          <span className="btm-nav-label">Report</span>
-        </Link>
-      </div>
+        <Footer page={"home"}/>
+      
     </>
   );
 }

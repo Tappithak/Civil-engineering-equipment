@@ -6,6 +6,8 @@ import { HiOutlineDotsCircleHorizontal } from "react-icons/hi";
 import { IoHome } from "react-icons/io5";
 import { Link } from "react-router-dom"
 import { HiOutlineDocumentReport } from "react-icons/hi";
+import Navbar from "./navbar.jsx";
+import Footer from "./footer.jsx";
 
 
 
@@ -16,8 +18,7 @@ export default function detail() {
     const [data, setData] = useState([]);
     const [ load , setload] =  useState(false);
     const [ background , setbackground] =  useState("");
-    const [ dataImg , setDataImg ]  = useState(JSON.parse(localStorage.getItem("dataMenu")));
-
+    const [dataImg, setDataImg] = useState([]);
 
       function countLocation(datalocal){
         var cb = []
@@ -139,15 +140,7 @@ export default function detail() {
       }
 
 
-      function findBg(){
-        let resualt = "";
-        for(var i=0;i<dataImg.length;i++) {
-          if(dataImg[i].name == localStorage.getItem("listSel")){
-            resualt = dataImg[i].img;
-          }
-        }
-        setbackground(resualt)
-      }
+
 
       
 
@@ -167,8 +160,6 @@ export default function detail() {
             console.log(error);
           }finally{
             setload(false);
-           
-            findBg();
           }
         };
         
@@ -270,24 +261,7 @@ load ?
     }
 
 
-      <nav className="navbar bg-base-100 h-[90px] shadow">
-        <div className="flex-1">
-          <img className="logo-left" src={Logoleft} alt={Logoleft}></img>
-          <a className="ml-3 text-2xl">ยุทโธปกรณ์สายช่างโยธา</a>
-        </div>
-        <div className="flex-none gap-2">
-          <div className="form-control d-flex flex-row">
-            <input
-              type="text"
-              placeholder="ค้นหา"
-              className="input input-bordered w-24 md:w-auto"
-              value={search}
-              onChange={(e) => setsearch(e.target.value)}
-            />
-            {/* <div className="logo-right"></div> */}
-          </div>
-        </div>
-      </nav>
+      <Navbar search={search} setsearch={setsearch} setload={setload} setData={setDataImg} setbackground={setbackground}/>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 overflow-auto justify-items-center gap-3 pt-[90px] pb-[80px] xl:h-[100dvh]">
 
@@ -349,21 +323,7 @@ load ?
    
    
       {/* =============== Footer  =============== */}
-
-      <div className="btm-nav">
-        <Link className=" bg-pink-200 text-pink-600" to="/">
-          <IoHome />
-          <span className="btm-nav-label">Home</span>
-        </Link>
-       <Link className=" bg-blue-200 text-blue-600 border-blue-600"  to="/tablelist">
-          <HiTableCells />
-          <span className="btm-nav-label">รายการ</span>
-        </Link>
-        <Link className="active bg-teal-200 text-teal-600" to="/report">
-          <HiOutlineDocumentReport />
-          <span className="btm-nav-label">Report</span>
-        </Link>
-      </div>
+      <Footer page={"report"}/>
     </>
   );
 }
