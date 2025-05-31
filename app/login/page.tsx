@@ -20,23 +20,23 @@ const LoginPage = () => {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-5xl bg-white rounded-lg shadow-xl overflow-hidden flex flex-col md:flex-row">
         {/* Left Panel - Background and Welcome Text */}
-        <div className="md:w-1/2 bg-gradient-to-br from-rose-700 to-rose-500 p-8 flex flex-col justify-center items-center text-white">
+        <div className="md:w-1/2 bg-gradient-to-br from-rose-800 to-rose-500 p-8 flex flex-col justify-center items-center text-white">
           <div className="w-full text-center mb-8">
             <img
-              src="/icon.png"
+              src="/icon-full.png"
               alt="logo"
-              width={100}
-              height={100}
+              width={140}
+              height={140}
               className="mx-auto mb-4"
             />
-            <div className="text-md font-bold uppercase tracking-wider mb-2">
-              NPD Logistics Hub
+            <div className="text-lg font-bold uppercase tracking-wider mb-2">
+              WELCOME TO
             </div>
           </div>
 
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-2">Nice to see you again</h2>
-            <h1 className="text-3xl font-bold mb-6">WELCOME BACK</h1>
+            <h2 className="text-2xl font-bold mb-2">NPD Smart Logistics Hub Application</h2>
+            {/* <h1 className="text-3xl font-bold mb-6">WELCOME BACK</h1> */}
             <p className="text-sm opacity-80 max-w-md mx-auto">
               แอปพลิเคชันระบบส่งกำลังบำรุงสายช่างโยธา
               เพื่อสนับสนุนภารกิจกองทัพเรือ และรองรับสถานการณ์วิกฤต
