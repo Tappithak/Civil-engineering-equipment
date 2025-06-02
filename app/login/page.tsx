@@ -2,8 +2,7 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { User, Lock } from "lucide-react";
+
 
 const LoginPage = () => {
   const [username, setUsername] = React.useState("");
@@ -15,6 +14,28 @@ const LoginPage = () => {
     console.log("Login attempt:", { username, password });
     // Add your login logic here
   };
+
+  React.useEffect(() => {
+    const getdata = async () => {
+      await fetch("/api/get?dbname=equip", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Data fetched successfully:", data);
+          // Handle the fetched data as needed
+        })
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+          // Handle the error as needed
+        });
+    }
+    getdata();
+  }, []);
+
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
