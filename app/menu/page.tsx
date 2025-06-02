@@ -1,14 +1,11 @@
 "use client";
 import {
   Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardAction,
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
 import React from "react";
+import { useRouter } from "next/navigation";
 import {
   Carousel,
   CarouselContent,
@@ -24,62 +21,68 @@ const listmenu = [
     name: "รถทุ่นแรง",
     icon: "/menu1.png",
     description: "เครื่องจักรสำหรับทุ่นแรงต่างๆ",
+    path: "/equipment",
   },
   {
     id: 2,
     name: "เครื่องแปลงความถี่",
     icon: "/menu2.jpg",
     description: "เครื่องแปลงความถี่ทางไฟฟ้า",
+    path: "/frequency",
   },
   {
     id: 3,
     name: "เครื่องกำเนิดไฟฟ้า",
     icon: "/menu3.jpg",
     description: "เครื่องกำเนิดไฟฟ้าขนาเเล็กและใหญ่",
+    path: "/generator",
   },
   {
     id: 4,
     name: "กำลังพลชุดปฏิบัติงาน",
     icon: "/menu4.png",
     description: "กำลังพลชุดปฏิบัติงานต่างๆ",
+    path: "/personnel",
   },
   {
     id: 5,
     name: "คู่มือ/เอกสารอ้างอิง",
     icon: "/menu5.png",
     description: "คู่มือ/เอกสารอ้างอิงต่างๆ",
+    path: "/document",
   },
 ];
 
 function menu() {
+  const router = useRouter();
   return (
-    <div className="bg-gradient-to-br from-green-100 to-purple-100 h-screen  p-4 flex items-center justify-center">
+    <div className="bg-gradient-to-br from-green-100 to-purple-100 h-auto px-4 flex items-center justify-center">
       <div className="flex flex-row  justify-center items-center gap-15">
         <div className="">
           <div>
             <img
               src="/icon-full.png"
               alt="Logo"
-              className="w-[180px] h-[180px] rounded-full shadow-card mb-4"
+              className="w-[120px] h-[120px] md:w-[200px] md:h-[200px] rounded-full shadow-card mb-4"
             />
           </div>
           <div>
             <div className="flex flex-col gap-0">
-              <h1 className="text-[50px] text-slate-600 font-bold">
+              <h1 className="text-[30px] md:text-[50px] text-slate-600 font-bold">
                 NPD Smart Logistics
               </h1>
-              <h1 className="text-[50px] text-slate-600 font-bold">
+              <h1 className="text-[30px] md:text-[50px] text-slate-600 font-bold">
                 Hub Application
               </h1>
             </div>
-            <p className="text-[20px] text-slate-500 mt-2">
+            <p className="text-[18px] md:text-[25px] text-slate-500 mt-2">
               แอปพลิเคชันระบบส่งกำลังบำรุงสายช่างโยธา
               เพื่อสนับสนุนภารกิจกองทัพเรือ และรองรับสถานการณ์วิกฤต
             </p>
           </div>
-          <div className="w-full h-[450px] flex items-center justify-center">
+          <div className="w-full h-[450px] items-center justify-center mt-4">
             <Carousel
-              className="w-[820px] relative"
+              className="w-[270px] md:w-[700px] xl:w-[900px] m-auto"
               plugins={[
                 Autoplay({
                   delay: 2000,
@@ -89,7 +92,9 @@ function menu() {
               <CarouselContent className="-ml-4">
                 {listmenu.map((item) => (
                   <CarouselItem className="p-4" key={item.id}>
-                    <Card className="w-[250px] h-[330px] bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:cursor-pointer">
+                    <Card className="w-[250px] h-[330px] bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:cursor-pointer"
+                      onClick={() => router.push(item.path)}
+                    >
                       <CardContent>
                         <div className="flex justify-center items-center h-full">
                           <img
@@ -125,7 +130,7 @@ function menu() {
           </div>
         </div>
         {/* Image section right */}
-        <div>
+        <div className="hidden xl:flex">
           <img
             src="/background.jpg"
             alt="Logo"

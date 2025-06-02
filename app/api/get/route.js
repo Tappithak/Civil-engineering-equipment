@@ -11,6 +11,9 @@ export async function GET(req) {
         case 'equip':
             range = 'data_equip!A1:I';
             break; // เพิ่ม break ตรงนี้
+        case 'categoryequipments':
+            range = 'data_menu!A1:E';
+            break; // เพิ่ม break ตรงนี้
         default:
             range = 'data_equip!A1:I';
             break; // ย้าย break มาไว้หลัง default
