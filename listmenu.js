@@ -10,13 +10,13 @@ export const listmenu = [
     id: 2,
     name: "Categories",
     icon: <Table className="h-6 w-6" />,
-    path: "/menu",
+    path: "/equipment",
   },
   {
     id: 3,
     name: "Map",
     icon: <Map className="h-6 w-6" />,
-    path: "/menu",
+    path: "/mapallequipment",
   },
   {
     id: 4,

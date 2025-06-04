@@ -12,7 +12,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ClipboardList } from "lucide-react";
+import { ClipboardList, MapPinned } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 function Equipment() {
   type EquipmentItem = { ID: string | number; Name?: string };
@@ -38,10 +39,10 @@ function Equipment() {
   }
 
   interface MapReportProps {
-  data: EquipmentData[];
-  selected: string;
-  onProvinceClick?: (province: string, count: number) => void;
-}
+    data: EquipmentData[];
+    selected: string;
+    onProvinceClick?: (province: string, count: number) => void;
+  }
 
   const [listmenu, setListmenu] = React.useState<EquipmentItem[]>([]);
   const [equipments, setEquipments] = React.useState<EquipmentData[]>([]);
@@ -52,6 +53,7 @@ function Equipment() {
     React.useState<EquipmentItem | null>(null);
   const [searchTerm, setSearchTerm] = React.useState("");
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [isMapDialogOpen, setIsMapDialogOpen] = React.useState(false); // เพิ่ม state สำหรับ Map Dialog
   const [activeTab, setActiveTab] = React.useState("details");
   const [selectedEquipmentDetail, setSelectedEquipmentDetail] =
     React.useState<EquipmentData | null>(null);
@@ -106,11 +108,11 @@ function Equipment() {
       })
         .then((response) => response.json())
         .then((data) => {
-          console.log("Data fetched successfully:", data);
+          // console.log("Data fetched successfully:", data);
           // Handle the fetched data as needed
         })
         .catch((error) => {
-          console.error("Error fetching data:", error);
+          // console.error("Error fetching data:", error);
           // Handle the error as needed
         });
     };
@@ -135,6 +137,7 @@ function Equipment() {
   if (loading) {
     return <div className="text-center p-8">Loading equipment...</div>;
   }
+
 
   // Component สำหรับแสดงแบบ Category (Grid Cards)
   const CategoryView = () => (
@@ -282,6 +285,7 @@ function Equipment() {
             </div>
           </SheetTitle>
           <div className="mt-2">
+            {/* Dialog สำหรับรายละเอียด */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogContent
                 onOpenAutoFocus={(e) => e.preventDefault()}
@@ -485,7 +489,7 @@ function Equipment() {
                                 {/* Additional Info */}
                                 <div className="mt-4 flex flex-wrap gap-2">
                                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    หมวดหมู่:{" "}
+                                    หน่วย:{" "}
                                     {selectedEquipmentDetail?.groups ||
                                       "ไม่ระบุ"}
                                   </span>
@@ -620,15 +624,21 @@ function Equipment() {
                   {activeTab === "other" && (
                     <div className="text-center py-8 text-gray-500">
                       <MapReport
-                        data={equipments}
-                        selected={selectedEquipmentDetail?.groups ?? ""}
+                        data={equipments.map((item) => ({
+                          ...item,
+                          position: item.position ?? "",
+                          matchid: item.matchid ?? "",
+                          items: item.items ?? "",
+                        }))}
+                        selected={selectedEquipmentDetail?.matchid ?? ""}
                       />
                     </div>
                   )}
                 </div>
               </DialogContent>
+
               {/* Search Box */}
-              <div className="mb-4">
+              <div className="mb-4 flex flex-row jus items-center space-x-2">
                 <input
                   type="text"
                   placeholder="ค้นหารายการ..."
@@ -636,7 +646,197 @@ function Equipment() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
+                <Button
+                  onClick={() => setIsMapDialogOpen(true)}
+                  className="bg-white text-slate-800 hover:bg-gray-100 focus:ring-2 focus:ring-gray-300 focus:border-transparent rounded-md px-3 py-2 text-sm transition-colors duration-200 shadow-sm flex items-center border border-slate-200"
+                >
+                  <MapPinned className="inline-block mr-1" />
+                </Button>
               </div>
+
+              {/* Dialog แยกต่างหากสำหรับแผนที่ */}
+              <Dialog open={isMapDialogOpen} onOpenChange={setIsMapDialogOpen}>
+                <DialogContent
+  onOpenAutoFocus={(e) => e.preventDefault()}
+  onCloseAutoFocus={(e) => e.preventDefault()}
+  className="max-w-[98%] max-h-[90%] overflow-hidden"
+>
+  <DialogHeader>
+    <DialogTitle className="flex items-center gap-2">
+      <MapPinned className="w-5 h-5" />
+      แผนที่แสดงตำแหน่งอุปกรณ์
+    </DialogTitle>
+    <DialogDescription>
+      แผนที่แสดงตำแหน่งการกระจายของ{" "}
+      {selectedEquipment?.Name || "เครื่องทุ่นแรง"}
+    </DialogDescription>
+  </DialogHeader>
+
+  <div className="flex flex-col md:flex-row items-center gap-4 h-[450px] md:h-[700px] overflow-y-auto overflow-x-hidden">
+    {/* แผนที่ */}
+    <div className="flex-1 w-full">
+      <MapReport
+        data={(() => {
+          // แสดงข้อมูลทั้งหมดที่ items === selectedEquipment?.Name
+          let filteredData;
+          
+          if (selectedEquipment?.Name) {
+            filteredData = equipments.filter((item) =>
+              item.items === selectedEquipment.Name
+            );
+          } else {
+            // ถ้าไม่มี selectedEquipment ให้แสดงข้อมูลทั้งหมด
+            filteredData = equipments;
+          }
+
+          return filteredData.map((item) => ({
+            ...item,
+            position: item.position ?? "",
+            matchid: item.matchid ?? "",
+            items: item.items ?? "",
+          }));
+        })()}
+        selected={selectedEquipment?.Name || ""}
+      />
+    </div>
+
+    {/* ตารางข้อมูล */}
+    <div className="w-full md:w-96 md:border-l md:pl-4">
+      <h3 className="text-lg font-semibold mb-3 text-gray-800">
+        รายการอุปกรณ์
+      </h3>
+      <div>
+        {(() => {
+          // แสดงข้อมูลทั้งหมดที่ items === selectedEquipment?.Name
+          let dataToShow: EquipmentData[];
+          let title: string;
+          
+          if (selectedEquipment?.Name) {
+            // แสดงข้อมูลทั้งหมดที่ตรงกับ selectedEquipment.Name
+            dataToShow = equipments.filter(
+              (item) => item.items === selectedEquipment.Name
+            );
+            title = selectedEquipment.Name;
+          } else {
+            dataToShow = [];
+            title = "อุปกรณ์";
+          }
+
+          if (dataToShow.length === 0) {
+            return (
+              <div className="text-center py-8 text-gray-500">
+                <div className="flex flex-col items-center space-y-2">
+                  <MapPinned className="w-12 h-12 text-gray-300" />
+                  <p className="text-sm">
+                    {selectedEquipment?.Name
+                      ? "ไม่พบข้อมูลอุปกรณ์"
+                      : "เลือกรายการเพื่อดูรายละเอียด"
+                    }
+                  </p>
+                </div>
+              </div>
+            );
+          }
+
+          const totalCount = dataToShow.length;
+          const workingCount = dataToShow.filter(
+            (item) => item.status === "ใช้งานได้"
+          ).length;
+          const brokenCount = dataToShow.filter(
+            (item) => item.status !== "ใช้งานได้"
+          ).length;
+
+          return (
+            <div className="space-y-4">
+              {/* สรุปจำนวน */}
+              <div className="bg-gray-50 p-3 rounded-lg border">
+                <div>
+                  <h4 className="font-medium text-gray-700 mb-2">
+                    สรุป: {title}
+                  </h4>
+                  <div className="grid grid-cols-3 gap-2 text-sm">
+                    <div className="text-center p-2 bg-blue-100 rounded">
+                      <div className="font-bold text-blue-600">
+                        {totalCount}
+                      </div>
+                      <div className="text-blue-600">ทั้งหมด</div>
+                    </div>
+                    <div className="text-center p-2 bg-green-100 rounded">
+                      <div className="font-bold text-green-600">
+                        {workingCount}
+                      </div>
+                      <div className="text-green-600">ใช้งานได้</div>
+                    </div>
+                    <div className="text-center p-2 bg-red-100 rounded">
+                      <div className="font-bold text-red-600">
+                        {brokenCount}
+                      </div>
+                      <div className="text-red-600">ชำรุด</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ตารางรายละเอียด */}
+              <div className="border rounded-lg h-[300px] overflow-auto md:h-[500px]">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 sticky top-0 z-10">
+                    <tr>
+                      <th className="px-3 py-2 text-left font-medium text-gray-700">
+                        ทะเบียน
+                      </th>
+                      <th className="px-3 py-2 text-left font-medium text-gray-700">
+                        หน่วย
+                      </th>
+                      <th className="px-3 py-2 text-left font-medium text-gray-700">
+                        สถานที่
+                      </th>
+                      <th className="px-3 py-2 text-left font-medium text-gray-700">
+                        สถานะ
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dataToShow.map((item, index) => (
+                      <tr
+                        key={item.id}
+                        className={
+                          index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                        }
+                      >
+                        <td className="px-3 py-2 text-gray-600">
+                          {item.card || "-"}
+                        </td>
+                        <td className="px-3 py-2 text-gray-600">
+                          {item.groups || "-"}
+                        </td>
+                        <td className="px-3 py-2 text-gray-600">
+                          {item.position || "-"}
+                        </td>
+                        <td className="px-3 py-2">
+                          {item.status === "ใช้งานได้" ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              ใช้งานได้
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                              ชำรุด
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          );
+        })()}
+      </div>
+    </div>
+  </div>
+</DialogContent>
+              </Dialog>
 
               {/* Table Container with Overflow */}
               <div className="max-h-[400px] md:min-h-[550px] overflow-y-auto border border-gray-300 rounded-md">

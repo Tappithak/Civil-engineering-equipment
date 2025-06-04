@@ -12,7 +12,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-function Topbar() {
+function Topbar({search = true}: {search?: boolean}) {
   const { searchValue, setSearchValue } = useSearch()
   const [isFocused, setIsFocused] = React.useState(false)
 
@@ -90,6 +90,7 @@ function Topbar() {
 
           {/* Center - Search Box */}
         <div className="flex-1 max-w-2xl mx-2 md:mx-8">
+          {search && (
           <div className={`relative flex items-center bg-gray-700/30 backdrop-blur-sm rounded-2xl border transition-all duration-300 ${
             isFocused 
               ? 'border-blue-400/50 shadow-lg shadow-blue-500/20 bg-gray-700/40' 
@@ -117,6 +118,7 @@ function Topbar() {
               <Search size={16} className="text-white" />
             </button>
           </div>
+          )}
         </div>
       </div>
     </div>
