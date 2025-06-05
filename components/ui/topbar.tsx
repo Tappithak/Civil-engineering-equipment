@@ -2,7 +2,7 @@
 import * as React from "react";
 import { Search, Menu, Bell, User } from "lucide-react";
 import { useSearch } from '@/contexts/SearchContext'
-import { listmenu } from "@/listmenu";
+import {listmenu} from "@/listmenu"; // Assuming you have a listmenu.js file that exports the menu items
 import {
   Sheet,
   SheetContent,

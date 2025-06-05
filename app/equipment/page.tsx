@@ -24,7 +24,12 @@ import {
 import { Button } from "@/components/ui/button";
 
 function Equipment() {
-  type EquipmentItem = { ID: string | number; Name?: string };
+  type EquipmentItem = {
+    id: string | number;
+    img_id: string | number;
+    Name?: string;
+    type?: string;
+  };
 
   interface EquipmentData {
     id: string | number;
@@ -36,6 +41,7 @@ function Equipment() {
     position?: string;
     matchid?: string;
     count?: number;
+    type?: string;
   }
 
   interface MapReportProps {
@@ -57,36 +63,47 @@ function Equipment() {
   const [activeTab, setActiveTab] = React.useState("details");
   const [selectedEquipmentDetail, setSelectedEquipmentDetail] =
     React.useState<EquipmentData | null>(null);
+  const [namePage, setNamePage] = React.useState("เครื่องทุ่นแรง");
+  const [mounted, setMounted] = React.useState(false);
 
-  const getdataequipments = async () => {
+
+  interface GetDataEquipmentsResponse extends Array<EquipmentData> {}
+
+  const getdataequipments = async (typemenu: string): Promise<void> => {
     await fetch("/api/get?dbname=equip", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     })
-      .then((response) => response.json())
-      .then((data) => {
-        setEquipments(data);
+      .then((response: Response) => response.json())
+      .then((data: GetDataEquipmentsResponse) => {
+        setEquipments(
+          data.filter((item: EquipmentData) => item.type === typemenu)
+        );
         // Handle the fetched data as needed
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
         console.error("Error fetching data:", error);
       });
   };
 
-  const fetchData = async () => {
+  interface FetchDataResponse extends Array<EquipmentItem> {}
+
+  const fetchData = async (typemenu: string): Promise<void> => {
     try {
       setLoading(true);
-      const response = await fetch("/api/get?dbname=categoryequipments", {
+      const response: Response = await fetch("/api/get?dbname=categoryequipments", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
       });
-      const data = await response.json();
-      setListmenu(data);
-    } catch (error) {
+      const data: FetchDataResponse = await response.json();
+      setListmenu(
+        data.filter((item: EquipmentItem) => item.type === typemenu)
+      );
+    } catch (error: unknown) {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
@@ -94,30 +111,49 @@ function Equipment() {
   };
 
   React.useEffect(() => {
-    fetchData();
-    getdataequipments();
-  }, []);
+  setMounted(true);
+}, []);
 
   React.useEffect(() => {
-    const getdata = async () => {
-      await fetch("/api/get?dbname=equip", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          // console.log("Data fetched successfully:", data);
-          // Handle the fetched data as needed
-        })
-        .catch((error) => {
-          // console.error("Error fetching data:", error);
-          // Handle the error as needed
-        });
-    };
-    getdata();
-  }, []);
+      if (mounted) {
+      const searchParams = new URLSearchParams(window.location.search);
+      const typemenu = searchParams.get("type") || "";
+      switch (typemenu) {
+        case "generator":
+          setNamePage("เครื่องกำเนิดไฟฟ้า");
+          break;
+        case "frquency":
+          setNamePage("เครื่องกำเนิดความถี่");
+          break;
+        default:
+          setNamePage("เครื่องทุ่นแรง");
+      }
+      fetchData(typemenu);
+      getdataequipments(typemenu);
+    }
+  }, [mounted]);
+
+  // React.useEffect(() => {
+  //   const getdata = async () => {
+  //     await fetch("/api/get?dbname=equip", {
+  //       method: "GET",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     })
+  //       .then((response) => response.json())
+  //       .then((data) => {
+  //         console.log()
+  //         // console.log("Data fetched successfully:", data);
+  //         // Handle the fetched data as needed
+  //       })
+  //       .catch((error) => {
+  //         // console.error("Error fetching data:", error);
+  //         // Handle the error as needed
+  //       });
+  //   };
+  //   getdata();
+  // }, []);
 
   // Filter รายการตาม search value
   const filteredList = React.useMemo(() => {
@@ -127,17 +163,16 @@ function Equipment() {
 
     return listmenu.filter((item) => {
       const name = item["Name"]?.toLowerCase() || "";
-      const id = item["ID"]?.toString().toLowerCase() || "";
+      const id = item["img_id"]?.toString().toLowerCase() || "";
       const searchTerm = searchValue.toLowerCase();
 
       return name.includes(searchTerm) || id.includes(searchTerm);
     });
   }, [listmenu, searchValue]);
 
-  if (loading) {
+  if (!mounted || loading) {
     return <div className="text-center p-8">Loading equipment...</div>;
   }
-
 
   // Component สำหรับแสดงแบบ Category (Grid Cards)
   const CategoryView = () => (
@@ -146,12 +181,12 @@ function Equipment() {
         filteredList.map((item) => (
           <SheetTrigger
             onClick={() => setSelectedEquipment(item["Name"] ? item : null)}
-            key={item["ID"]}
+            key={item["id"]}
             className="bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-xl transition-shadow duration-300 ease-in-out hover:cursor-pointer"
           >
             <ImageWithFallback
-              src={item["ID"]?.toString()}
-              alt={item["Name"] || `Equipment ${item["ID"]}`}
+              src={item["img_id"]?.toString()}
+              alt={item["Name"] || `Equipment ${item["img_id"]}`}
               className="w-full h-40 md:h-48 object-cover"
             />
             <div className="p-1">
@@ -177,7 +212,7 @@ function Equipment() {
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
               />
             </svg>
-            <p className="text-lg">ไม่พบเครื่องทุ่นแรงที่ค้นหา</p>
+            <p className="text-lg">ไม่พบ{namePage}ที่ค้นหา</p>
             <p className="text-sm">ลองค้นหาด้วยคำอื่น หรือตรวจสอบการสะกดคำ</p>
           </div>
         </div>
@@ -207,13 +242,13 @@ function Equipment() {
             {filteredList.length > 0 ? (
               filteredList.map((item, index) => (
                 <tr
-                  key={item["ID"]}
+                  key={item["id"]}
                   className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <ImageWithFallback
-                      src={item["ID"]?.toString()}
-                      alt={item["Name"] || `Equipment ${item["ID"]}`}
+                      src={item["img_id"]?.toString()}
+                      alt={item["Name"] || `Equipment ${item["img_id"]}`}
                       className="h-16 w-16 object-cover rounded-lg"
                     />
                   </td>
@@ -249,7 +284,7 @@ function Equipment() {
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                       />
                     </svg>
-                    <p className="text-lg">ไม่พบเครื่องทุ่นแรงที่ค้นหา</p>
+                    <p className="text-lg">ไม่พบ{namePage}ที่ค้นหา</p>
                     <p className="text-sm">
                       ลองค้นหาด้วยคำอื่น หรือตรวจสอบการสะกดคำ
                     </p>
@@ -275,12 +310,12 @@ function Equipment() {
           <SheetTitle>
             <div className="flex items-center space-x-2 gap-4">
               <ImageWithFallback
-                src={selectedEquipment?.ID?.toString() || ""}
-                alt={selectedEquipment?.Name || "เครื่องทุ่นแรง"}
+                src={selectedEquipment?.img_id?.toString() || ""}
+                alt={selectedEquipment?.Name || namePage}
                 className="w-36 h-36  mb-2"
               />
               <h1 className="text-xl font-bold text-gray-800">
-                {selectedEquipment?.Name || "เครื่องทุ่นแรง"}
+                {selectedEquipment?.Name || namePage}
               </h1>
             </div>
           </SheetTitle>
@@ -657,185 +692,190 @@ function Equipment() {
               {/* Dialog แยกต่างหากสำหรับแผนที่ */}
               <Dialog open={isMapDialogOpen} onOpenChange={setIsMapDialogOpen}>
                 <DialogContent
-  onOpenAutoFocus={(e) => e.preventDefault()}
-  onCloseAutoFocus={(e) => e.preventDefault()}
-  className="max-w-[98%] max-h-[90%] overflow-hidden"
->
-  <DialogHeader>
-    <DialogTitle className="flex items-center gap-2">
-      <MapPinned className="w-5 h-5" />
-      แผนที่แสดงตำแหน่งอุปกรณ์
-    </DialogTitle>
-    <DialogDescription>
-      แผนที่แสดงตำแหน่งการกระจายของ{" "}
-      {selectedEquipment?.Name || "เครื่องทุ่นแรง"}
-    </DialogDescription>
-  </DialogHeader>
+                  onOpenAutoFocus={(e) => e.preventDefault()}
+                  onCloseAutoFocus={(e) => e.preventDefault()}
+                  className="max-w-[98%] max-h-[90%] overflow-hidden"
+                >
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                      <MapPinned className="w-5 h-5" />
+                      แผนที่แสดงตำแหน่งอุปกรณ์
+                    </DialogTitle>
+                    <DialogDescription>
+                      แผนที่แสดงตำแหน่งการกระจายของ{" "}
+                      {selectedEquipment?.Name || namePage}
+                    </DialogDescription>
+                  </DialogHeader>
 
-  <div className="flex flex-col md:flex-row items-center gap-4 h-[450px] md:h-[700px] overflow-y-auto overflow-x-hidden">
-    {/* แผนที่ */}
-    <div className="flex-1 w-full">
-      <MapReport
-        data={(() => {
-          // แสดงข้อมูลทั้งหมดที่ items === selectedEquipment?.Name
-          let filteredData;
-          
-          if (selectedEquipment?.Name) {
-            filteredData = equipments.filter((item) =>
-              item.items === selectedEquipment.Name
-            );
-          } else {
-            // ถ้าไม่มี selectedEquipment ให้แสดงข้อมูลทั้งหมด
-            filteredData = equipments;
-          }
+                  <div className="flex flex-col md:flex-row items-center gap-4 h-[450px] md:h-[700px] overflow-y-auto overflow-x-hidden">
+                    {/* แผนที่ */}
+                    <div className="flex-1 w-full">
+                      <MapReport
+                        data={(() => {
+                          // แสดงข้อมูลทั้งหมดที่ items === selectedEquipment?.Name
+                          let filteredData;
 
-          return filteredData.map((item) => ({
-            ...item,
-            position: item.position ?? "",
-            matchid: item.matchid ?? "",
-            items: item.items ?? "",
-          }));
-        })()}
-        selected={selectedEquipment?.Name || ""}
-      />
-    </div>
+                          if (selectedEquipment?.Name) {
+                            filteredData = equipments.filter(
+                              (item) => item.items === selectedEquipment.Name
+                            );
+                          } else {
+                            // ถ้าไม่มี selectedEquipment ให้แสดงข้อมูลทั้งหมด
+                            filteredData = equipments;
+                          }
 
-    {/* ตารางข้อมูล */}
-    <div className="w-full md:w-96 md:border-l md:pl-4">
-      <h3 className="text-lg font-semibold mb-3 text-gray-800">
-        รายการอุปกรณ์
-      </h3>
-      <div>
-        {(() => {
-          // แสดงข้อมูลทั้งหมดที่ items === selectedEquipment?.Name
-          let dataToShow: EquipmentData[];
-          let title: string;
-          
-          if (selectedEquipment?.Name) {
-            // แสดงข้อมูลทั้งหมดที่ตรงกับ selectedEquipment.Name
-            dataToShow = equipments.filter(
-              (item) => item.items === selectedEquipment.Name
-            );
-            title = selectedEquipment.Name;
-          } else {
-            dataToShow = [];
-            title = "อุปกรณ์";
-          }
-
-          if (dataToShow.length === 0) {
-            return (
-              <div className="text-center py-8 text-gray-500">
-                <div className="flex flex-col items-center space-y-2">
-                  <MapPinned className="w-12 h-12 text-gray-300" />
-                  <p className="text-sm">
-                    {selectedEquipment?.Name
-                      ? "ไม่พบข้อมูลอุปกรณ์"
-                      : "เลือกรายการเพื่อดูรายละเอียด"
-                    }
-                  </p>
-                </div>
-              </div>
-            );
-          }
-
-          const totalCount = dataToShow.length;
-          const workingCount = dataToShow.filter(
-            (item) => item.status === "ใช้งานได้"
-          ).length;
-          const brokenCount = dataToShow.filter(
-            (item) => item.status !== "ใช้งานได้"
-          ).length;
-
-          return (
-            <div className="space-y-4">
-              {/* สรุปจำนวน */}
-              <div className="bg-gray-50 p-3 rounded-lg border">
-                <div>
-                  <h4 className="font-medium text-gray-700 mb-2">
-                    สรุป: {title}
-                  </h4>
-                  <div className="grid grid-cols-3 gap-2 text-sm">
-                    <div className="text-center p-2 bg-blue-100 rounded">
-                      <div className="font-bold text-blue-600">
-                        {totalCount}
-                      </div>
-                      <div className="text-blue-600">ทั้งหมด</div>
+                          return filteredData.map((item) => ({
+                            ...item,
+                            position: item.position ?? "",
+                            matchid: item.matchid ?? "",
+                            items: item.items ?? "",
+                          }));
+                        })()}
+                        selected={selectedEquipment?.Name || ""}
+                      />
                     </div>
-                    <div className="text-center p-2 bg-green-100 rounded">
-                      <div className="font-bold text-green-600">
-                        {workingCount}
+
+                    {/* ตารางข้อมูล */}
+                    <div className="w-full md:w-96 md:border-l md:pl-4">
+                      <h3 className="text-lg font-semibold mb-3 text-gray-800">
+                        รายการอุปกรณ์
+                      </h3>
+                      <div>
+                        {(() => {
+                          // แสดงข้อมูลทั้งหมดที่ items === selectedEquipment?.Name
+                          let dataToShow: EquipmentData[];
+                          let title: string;
+
+                          if (selectedEquipment?.Name) {
+                            // แสดงข้อมูลทั้งหมดที่ตรงกับ selectedEquipment.Name
+                            dataToShow = equipments.filter(
+                              (item) => item.items === selectedEquipment.Name
+                            );
+                            title = selectedEquipment.Name;
+                          } else {
+                            dataToShow = [];
+                            title = "อุปกรณ์";
+                          }
+
+                          if (dataToShow.length === 0) {
+                            return (
+                              <div className="text-center py-8 text-gray-500">
+                                <div className="flex flex-col items-center space-y-2">
+                                  <MapPinned className="w-12 h-12 text-gray-300" />
+                                  <p className="text-sm">
+                                    {selectedEquipment?.Name
+                                      ? "ไม่พบข้อมูลอุปกรณ์"
+                                      : "เลือกรายการเพื่อดูรายละเอียด"}
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          const totalCount = dataToShow.length;
+                          const workingCount = dataToShow.filter(
+                            (item) => item.status === "ใช้งานได้"
+                          ).length;
+                          const brokenCount = dataToShow.filter(
+                            (item) => item.status !== "ใช้งานได้"
+                          ).length;
+
+                          return (
+                            <div className="space-y-4">
+                              {/* สรุปจำนวน */}
+                              <div className="bg-gray-50 p-3 rounded-lg border">
+                                <div>
+                                  <h4 className="font-medium text-gray-700 mb-2">
+                                    สรุป: {title}
+                                  </h4>
+                                  <div className="grid grid-cols-3 gap-2 text-sm">
+                                    <div className="text-center p-2 bg-blue-100 rounded">
+                                      <div className="font-bold text-blue-600">
+                                        {totalCount}
+                                      </div>
+                                      <div className="text-blue-600">
+                                        ทั้งหมด
+                                      </div>
+                                    </div>
+                                    <div className="text-center p-2 bg-green-100 rounded">
+                                      <div className="font-bold text-green-600">
+                                        {workingCount}
+                                      </div>
+                                      <div className="text-green-600">
+                                        ใช้งานได้
+                                      </div>
+                                    </div>
+                                    <div className="text-center p-2 bg-red-100 rounded">
+                                      <div className="font-bold text-red-600">
+                                        {brokenCount}
+                                      </div>
+                                      <div className="text-red-600">ชำรุด</div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* ตารางรายละเอียด */}
+                              <div className="border rounded-lg h-[300px] overflow-auto md:h-[500px]">
+                                <table className="w-full text-sm">
+                                  <thead className="bg-gray-50 sticky top-0 z-10">
+                                    <tr>
+                                      <th className="px-3 py-2 text-left font-medium text-gray-700">
+                                        ทะเบียน
+                                      </th>
+                                      <th className="px-3 py-2 text-left font-medium text-gray-700">
+                                        หน่วย
+                                      </th>
+                                      <th className="px-3 py-2 text-left font-medium text-gray-700">
+                                        สถานที่
+                                      </th>
+                                      <th className="px-3 py-2 text-left font-medium text-gray-700">
+                                        สถานะ
+                                      </th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {dataToShow.map((item, index) => (
+                                      <tr
+                                        key={item.id}
+                                        className={
+                                          index % 2 === 0
+                                            ? "bg-white"
+                                            : "bg-gray-50"
+                                        }
+                                      >
+                                        <td className="px-3 py-2 text-gray-600">
+                                          {item.card || "-"}
+                                        </td>
+                                        <td className="px-3 py-2 text-gray-600">
+                                          {item.groups || "-"}
+                                        </td>
+                                        <td className="px-3 py-2 text-gray-600">
+                                          {item.position || "-"}
+                                        </td>
+                                        <td className="px-3 py-2">
+                                          {item.status === "ใช้งานได้" ? (
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                              ใช้งานได้
+                                            </span>
+                                          ) : (
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                              ชำรุด
+                                            </span>
+                                          )}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
-                      <div className="text-green-600">ใช้งานได้</div>
-                    </div>
-                    <div className="text-center p-2 bg-red-100 rounded">
-                      <div className="font-bold text-red-600">
-                        {brokenCount}
-                      </div>
-                      <div className="text-red-600">ชำรุด</div>
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* ตารางรายละเอียด */}
-              <div className="border rounded-lg h-[300px] overflow-auto md:h-[500px]">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50 sticky top-0 z-10">
-                    <tr>
-                      <th className="px-3 py-2 text-left font-medium text-gray-700">
-                        ทะเบียน
-                      </th>
-                      <th className="px-3 py-2 text-left font-medium text-gray-700">
-                        หน่วย
-                      </th>
-                      <th className="px-3 py-2 text-left font-medium text-gray-700">
-                        สถานที่
-                      </th>
-                      <th className="px-3 py-2 text-left font-medium text-gray-700">
-                        สถานะ
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dataToShow.map((item, index) => (
-                      <tr
-                        key={item.id}
-                        className={
-                          index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                        }
-                      >
-                        <td className="px-3 py-2 text-gray-600">
-                          {item.card || "-"}
-                        </td>
-                        <td className="px-3 py-2 text-gray-600">
-                          {item.groups || "-"}
-                        </td>
-                        <td className="px-3 py-2 text-gray-600">
-                          {item.position || "-"}
-                        </td>
-                        <td className="px-3 py-2">
-                          {item.status === "ใช้งานได้" ? (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                              ใช้งานได้
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                              ชำรุด
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          );
-        })()}
-      </div>
-    </div>
-  </div>
-</DialogContent>
+                </DialogContent>
               </Dialog>
 
               {/* Table Container with Overflow */}
@@ -920,7 +960,7 @@ function Equipment() {
         {/* Header พร้อมปุ่มเลือกการแสดงผล */}
         <div className="mb-6 flex justify-between items-center">
           <div>
-            <h1 className="text-xl font-bold text-gray-800">เครื่องทุ่นแรง</h1>
+            <h1 className="text-xl font-bold text-gray-800">{namePage}</h1>
             {searchValue && (
               <p className="text-sm text-gray-600 mt-1">
                 ผลการค้นหา: "{searchValue}" ({filteredList.length} รายการ)

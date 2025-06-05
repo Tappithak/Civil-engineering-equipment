@@ -9,10 +9,10 @@ export async function GET(req) {
     
     switch (result) {
         case 'equip':
-            range = 'data_equip!A1:I';
+            range = 'data_equip!A1:K';
             break; // เพิ่ม break ตรงนี้
         case 'categoryequipments':
-            range = 'data_menu!A1:E';
+            range = 'data_menu!A1:G';
             break; // เพิ่ม break ตรงนี้
         default:
             range = 'data_equip!A1:I';
