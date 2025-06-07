@@ -42,14 +42,14 @@ const listmenu = [
     name: "กำลังพลชุดปฏิบัติงาน",
     icon: "/menu4.png",
     description: "กำลังพลชุดปฏิบัติงานต่างๆ",
-    path: "/personnel?type=personnel",
+    path: "/personnel",
   },
   {
     id: 5,
     name: "คู่มือ/เอกสารอ้างอิง",
     icon: "/menu5.png",
     description: "คู่มือ/เอกสารอ้างอิงต่างๆ",
-    path: "/document?type=document",
+    path: "/manual",
   },
 ];
 

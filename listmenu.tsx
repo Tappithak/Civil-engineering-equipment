@@ -1,5 +1,4 @@
 import { House, Table, Map, LogOut } from "lucide-react";
-const urlParams = new URLSearchParams(window.location.search);
 export const listmenu = [
   {
     id: 1,

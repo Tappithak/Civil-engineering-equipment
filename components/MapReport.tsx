@@ -234,7 +234,7 @@ const ThailandMap: React.FC<ThailandMapProps> = ({ data, selected }) => {
             borderRadius: 15,
           },
           title: {
-            text: "แผนที่แสดงจำนวนรถ",
+            text: "แผนที่แสดงเครื่องจักร",
             style: {
               fontSize: "18px",
               fontWeight: "bold",
@@ -260,7 +260,7 @@ const ThailandMap: React.FC<ThailandMapProps> = ({ data, selected }) => {
           tooltip: {
             headerFormat: "",
             pointFormat:
-              "<b>{point.name}</b><br/>จำนวนรถ: <b>{point.value}</b> คัน",
+              "<b>{point.name}</b><br/>จำนวนรถ: <b>{point.value}</b>",
             backgroundColor: "rgba(0, 0, 0, 0.85)",
             style: {
               color: "#FFFFFF",
@@ -269,7 +269,7 @@ const ThailandMap: React.FC<ThailandMapProps> = ({ data, selected }) => {
           legend: {
             enabled: true,
             title: {
-              text: "จำนวนรถ (คัน)",
+              text: "จำนวน",
               style: {
                 fontSize: "12px",
               },
