@@ -260,7 +260,7 @@ const ThailandMap: React.FC<ThailandMapProps> = ({ data, selected }) => {
           tooltip: {
             headerFormat: "",
             pointFormat:
-              "<b>{point.name}</b><br/>จำนวนรถ: <b>{point.value}</b>",
+              "<b>{point.name}</b><br/>จำนวน: <b>{point.value}</b>",
             backgroundColor: "rgba(0, 0, 0, 0.85)",
             style: {
               color: "#FFFFFF",
@@ -280,7 +280,7 @@ const ThailandMap: React.FC<ThailandMapProps> = ({ data, selected }) => {
               type: "map",
               mapData: topology,
               data: dataLocation,
-              name: "จำนวนรถ",
+              name: "จำนวน",
               states: {
                 hover: {
                   color: "#BADA55",
