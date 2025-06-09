@@ -49,7 +49,7 @@ const listmenu = [
     name: "คู่มือ/เอกสารอ้างอิง",
     icon: "/menu5.png",
     description: "คู่มือ/เอกสารอ้างอิงต่างๆ",
-    path: "/manual",
+    path: "/documents",
   },
 ];
 
@@ -82,7 +82,7 @@ function menu() {
           </div>
           <div className="w-full h-[450px] items-center justify-center mt-4">
             <Carousel
-              className="w-[270px] md:w-[700px] xl:w-[900px] m-auto"
+              className="w-[300px] md:w-[700px] xl:w-[900px] m-auto"
               plugins={[
                 Autoplay({
                   delay: 2000,

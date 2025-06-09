@@ -1,54 +1,51 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, FileText, ExternalLink, Upload, Edit, Trash2, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, FileText, ExternalLink, Upload, Edit, Trash2, Save, Loader2, BookOpen, Building } from 'lucide-react';
 
 // TypeScript Interfaces
-interface ManualItem {
+interface DocumentItem {
   id: string;
   fname: string;
   path: string;
   group: string;
-  set: string;
   note?: string;
 }
 
-type ManualData = Record<string, ManualItem[]>;
+type DocumentData = Record<string, DocumentItem[]>;
 
 interface ApiResponse {
   success: boolean;
-  data: ManualItem[];
+  data: DocumentItem[];
   message?: string;
 }
 
 interface UploadPayload {
   fname: string;
   group: string;
-  set: string;
   path: string;
   note?: string;
 }
 
-export default function ThaiRepairManualSystem() {
+export default function DocumentsSystem() {
   // State Management
   const [currentPage, setCurrentPage] = useState<'home' | 'group' | 'pdf'>('home');
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
-  const [selectedItem, setSelectedItem] = useState<ManualItem | null>(null);
+  const [selectedItem, setSelectedItem] = useState<DocumentItem | null>(null);
   const [showUploadModal, setShowUploadModal] = useState<boolean>(false);
   const [showManageModal, setShowManageModal] = useState<boolean>(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploadName, setUploadName] = useState<string>('');
   const [uploadGroup, setUploadGroup] = useState<string>('');
-  const [uploadSet, setUploadSet] = useState<string>('');
-  const [editingItem, setEditingItem] = useState<ManualItem | null>(null);
-  const [manualData, setManualData] = useState<ManualData>({});
+  const [editingItem, setEditingItem] = useState<DocumentItem | null>(null);
+  const [documentData, setDocumentData] = useState<DocumentData>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [uploading, setUploading] = useState<boolean>(false);
 
   // API Functions
-  const fetchManualData = async (): Promise<void> => {
+  const fetchDocumentData = async (): Promise<void> => {
     try {
       setLoading(true);
-      const response = await fetch("/api/get?dbname=personnel", {
+      const response = await fetch("/api/get?dbname=documents", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -67,15 +64,15 @@ export default function ThaiRepairManualSystem() {
       
       if (Array.isArray(dataArray)) {
         // Group data by category
-        const groupedData: ManualData = {};
-        dataArray.forEach((item: ManualItem) => {
+        const groupedData: DocumentData = {};
+        dataArray.forEach((item: DocumentItem) => {
           const groupKey = item.group || 'อื่นๆ';
           if (!groupedData[groupKey]) {
             groupedData[groupKey] = [];
           }
           groupedData[groupKey].push(item);
         });
-        setManualData(groupedData);
+        setDocumentData(groupedData);
         console.log('Grouped Data:', groupedData);
       } else {
         console.error('Invalid data format:', result);
@@ -88,7 +85,7 @@ export default function ThaiRepairManualSystem() {
     }
   };
 
-  const uploadNewFile = async (payload: UploadPayload): Promise<boolean> => {
+  const uploadNewDocument = async (payload: UploadPayload): Promise<boolean> => {
     try {
       setUploading(true);
       const response = await fetch("/api/upload", {
@@ -106,8 +103,8 @@ export default function ThaiRepairManualSystem() {
       const result: ApiResponse = await response.json();
       
       if (result.success) {
-        alert('อัพโหลดไฟล์เรียบร้อยแล้ว');
-        await fetchManualData(); // Refresh data
+        alert('อัพโหลดเอกสารเรียบร้อยแล้ว');
+        await fetchDocumentData(); // Refresh data
         return true;
       } else {
         alert(`เกิดข้อผิดพลาด: ${result.message}`);
@@ -122,7 +119,7 @@ export default function ThaiRepairManualSystem() {
     }
   };
 
-  const updateItem = async (id: string, updatedData: Partial<ManualItem>): Promise<boolean> => {
+  const updateDocument = async (id: string, updatedData: Partial<DocumentItem>): Promise<boolean> => {
     try {
       const response = await fetch(`/api/update/${id}`, {
         method: "PUT",
@@ -140,7 +137,7 @@ export default function ThaiRepairManualSystem() {
       
       if (result.success) {
         alert('แก้ไขข้อมูลเรียบร้อยแล้ว');
-        await fetchManualData(); // Refresh data
+        await fetchDocumentData(); // Refresh data
         return true;
       } else {
         alert(`เกิดข้อผิดพลาด: ${result.message}`);
@@ -153,7 +150,7 @@ export default function ThaiRepairManualSystem() {
     }
   };
 
-  const deleteItem = async (id: string): Promise<boolean> => {
+  const deleteDocument = async (id: string): Promise<boolean> => {
     try {
       const response = await fetch(`/api/delete/${id}`, {
         method: "DELETE",
@@ -169,8 +166,8 @@ export default function ThaiRepairManualSystem() {
       const result: ApiResponse = await response.json();
       
       if (result.success) {
-        alert('ลบไฟล์เรียบร้อยแล้ว');
-        await fetchManualData(); // Refresh data
+        alert('ลบเอกสารเรียบร้อยแล้ว');
+        await fetchDocumentData(); // Refresh data
         return true;
       } else {
         alert(`เกิดข้อผิดพลาด: ${result.message}`);
@@ -185,7 +182,7 @@ export default function ThaiRepairManualSystem() {
 
   // Load data on component mount
   useEffect(() => {
-    fetchManualData();
+    fetchDocumentData();
   }, []);
 
   // Event Handlers
@@ -194,7 +191,7 @@ export default function ThaiRepairManualSystem() {
     setCurrentPage('group');
   };
 
-  const handleItemSelect = (item: ManualItem): void => {
+  const handleItemSelect = (item: DocumentItem): void => {
     setSelectedItem(item);
     setCurrentPage('pdf');
   };
@@ -210,7 +207,8 @@ export default function ThaiRepairManualSystem() {
   };
 
   const convertGoogleDriveUrl = (url: string): string => {
-    const fileId = url.match(/\/file\/d\/([a-zA-Z0-9-_]+)/)?.[1];
+    const fileId = url.match(/\/file\/d\/([a-zA-Z0-9-_]+)/)?.[1] || 
+                  url.match(/open\?id=([a-zA-Z0-9-_]+)/)?.[1];
     return fileId ? `https://drive.google.com/file/d/${fileId}/preview` : url;
   };
 
@@ -225,7 +223,7 @@ export default function ThaiRepairManualSystem() {
   };
 
   const submitUpload = async (): Promise<void> => {
-    if (!uploadFile || !uploadName.trim() || !uploadGroup.trim() || !uploadSet.trim()) {
+    if (!uploadFile || !uploadName.trim() || !uploadGroup.trim()) {
       alert('กรุณากรอกข้อมูลให้ครบถ้วน');
       return;
     }
@@ -236,47 +234,68 @@ export default function ThaiRepairManualSystem() {
     const payload: UploadPayload = {
       fname: uploadName,
       group: uploadGroup,
-      set: uploadSet,
       path: mockUrl,
       note: '',
     };
 
-    const success = await uploadNewFile(payload);
+    const success = await uploadNewDocument(payload);
     
     if (success) {
       // รีเซ็ตฟอร์ม
       setUploadFile(null);
       setUploadName('');
       setUploadGroup('');
-      setUploadSet('');
       setShowUploadModal(false);
     }
   };
 
   const handleDeleteItem = async (itemId: string): Promise<void> => {
-    if (confirm('คุณต้องการลบไฟล์นี้หรือไม่?')) {
-      await deleteItem(itemId);
+    if (confirm('คุณต้องการลบเอกสารนี้หรือไม่?')) {
+      await deleteDocument(itemId);
     }
   };
 
-  const handleEditItem = (item: ManualItem): void => {
+  const handleEditItem = (item: DocumentItem): void => {
     setEditingItem({ ...item });
   };
 
   const saveEditItem = async (): Promise<void> => {
     if (!editingItem || !editingItem.fname.trim()) {
-      alert('กรุณากรอกชื่อไฟล์');
+      alert('กรุณากรอกชื่อเอกสาร');
       return;
     }
 
-    const success = await updateItem(editingItem.id, {
+    const success = await updateDocument(editingItem.id, {
       fname: editingItem.fname,
       group: editingItem.group,
-      set: editingItem.set,
     });
 
     if (success) {
       setEditingItem(null);
+    }
+  };
+
+  // Get icon for group
+  const getGroupIcon = (groupName: string) => {
+    switch (groupName) {
+      case 'สถานะอาคาร':
+        return <Building className="w-8 h-8" />;
+      case 'คู่มือ':
+        return <BookOpen className="w-8 h-8" />;
+      default:
+        return <FileText className="w-8 h-8" />;
+    }
+  };
+
+  // Get color for group
+  const getGroupColor = (groupName: string) => {
+    switch (groupName) {
+      case 'สถานะอาคาร':
+        return 'bg-blue-100 text-blue-600';
+      case 'คู่มือ':
+        return 'bg-green-100 text-green-600';
+      default:
+        return 'bg-gray-100 text-gray-600';
     }
   };
 
@@ -297,25 +316,29 @@ export default function ThaiRepairManualSystem() {
     return (
       <div className="h-[calc(100dvh_-_80px)] pt-8 bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
         <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">ระบบเอกสารและคู่มือ</h1>
+            <p className="text-gray-600">เลือกประเภทเอกสารที่ต้องการ</p>
+          </div>
+
           {/* Group Selection */}
           <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            {Object.keys(manualData).map((groupName, index) => (
+            {Object.keys(documentData).map((groupName) => (
               <button
                 key={groupName}
                 onClick={() => handleGroupSelect(groupName)}
                 className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-8 border border-gray-200 hover:border-blue-300 group"
               >
                 <div className="text-center">
-                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
-                    index === 0 ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'
-                  }`}>
-                    <FileText className="w-8 h-8" />
+                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${getGroupColor(groupName)}`}>
+                    {getGroupIcon(groupName)}
                   </div>
                   <h3 className="text-xl font-semibold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">
                     {groupName}
                   </h3>
                   <p className="text-gray-500 text-sm">
-                    {manualData[groupName].length} รายการ
+                    {documentData[groupName].length} เอกสาร
                   </p>
                 </div>
               </button>
@@ -340,7 +363,12 @@ export default function ThaiRepairManualSystem() {
               <ArrowLeft className="w-5 h-5" />
               <span>กลับ</span>
             </button>
-            <h1 className="text-2xl font-bold text-gray-800">{selectedGroup}</h1>
+            <div className="flex items-center gap-3">
+              <div className={`p-2 rounded-lg ${getGroupColor(selectedGroup)}`}>
+                {getGroupIcon(selectedGroup)}
+              </div>
+              <h1 className="text-2xl font-bold text-gray-800">{selectedGroup}</h1>
+            </div>
           </div>
 
           {/* Items Grid */}
@@ -357,11 +385,11 @@ export default function ThaiRepairManualSystem() {
                 ) : (
                   <Upload className="w-4 h-4" />
                 )}
-                <span>{uploading ? 'กำลังอัพโหลด...' : 'อัพโหลดไฟล์ใหม่'}</span>
+                <span>{uploading ? 'กำลังอัพโหลด...' : 'อัพโหลดเอกสารใหม่'}</span>
               </button>
             </div>
 
-            {manualData[selectedGroup]?.map((item) => (
+            {documentData[selectedGroup]?.map((item) => (
               <button
                 key={item.id}
                 onClick={() => handleItemSelect(item)}
@@ -377,8 +405,8 @@ export default function ThaiRepairManualSystem() {
                         {item.fname}
                       </h3>
                       <p className="text-sm text-gray-500">คลิกเพื่อดูเอกสาร PDF</p>
-                      {item.set && (
-                        <p className="text-xs text-gray-400">ชุดที่: {item.set}</p>
+                      {item.note && (
+                        <p className="text-xs text-gray-400 mt-1">{item.note}</p>
                       )}
                     </div>
                   </div>
@@ -393,50 +421,34 @@ export default function ThaiRepairManualSystem() {
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
               <div className="bg-white rounded-lg max-w-md w-full">
                 <div className="p-6">
-                  <h3 className="text-xl font-semibold mb-4">อัพโหลดไฟล์ใหม่</h3>
+                  <h3 className="text-xl font-semibold mb-4">อัพโหลดเอกสารใหม่</h3>
                   
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        ชื่อไฟล์ *
+                        ชื่อเอกสาร *
                       </label>
                       <input
                         type="text"
                         value={uploadName}
                         onChange={(e) => setUploadName(e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="กรอกชื่อไฟล์"
+                        placeholder="กรอกชื่อเอกสาร"
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        กลุ่ม *
+                        ประเภทเอกสาร *
                       </label>
                       <select
                         value={uploadGroup}
                         onChange={(e) => setUploadGroup(e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                        <option value="">เลือกกลุ่ม</option>
-                        <option value="กำลังพลชุดปฏิบัติงานสำรวจอากาศ">กำลังพลชุดปฏิบัติงานสำรวจอากาศ</option>
-                        <option value="ชุดปฏิบัติการซ่อมชุดที่">ชุดปฏิบัติการซ่อมชุดที่</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        ชุด *
-                      </label>
-                      <select
-                        value={uploadSet}
-                        onChange={(e) => setUploadSet(e.target.value)}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">เลือกชุด</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
+                        <option value="">เลือกประเภทเอกสาร</option>
+                        <option value="สถานะอาคาร">สถานะอาคาร</option>
+                        <option value="คู่มือ">คู่มือ</option>
                       </select>
                     </div>
                     
@@ -461,13 +473,12 @@ export default function ThaiRepairManualSystem() {
                     )}
 
                     {/* แสดงข้อมูลที่กรอก */}
-                    {(uploadName || uploadGroup || uploadSet) && (
+                    {(uploadName || uploadGroup) && (
                       <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                         <h4 className="text-sm font-medium text-blue-800 mb-2">ข้อมูลที่จะบันทึก:</h4>
                         <div className="text-sm text-blue-700 space-y-1">
-                          {uploadName && <p>• ชื่อไฟล์: {uploadName}</p>}
-                          {uploadGroup && <p>• กลุ่ม: {uploadGroup}</p>}
-                          {uploadSet && <p>• ชุด: {uploadSet}</p>}
+                          {uploadName && <p>• ชื่อเอกสาร: {uploadName}</p>}
+                          {uploadGroup && <p>• ประเภท: {uploadGroup}</p>}
                         </div>
                       </div>
                     )}
@@ -487,7 +498,6 @@ export default function ThaiRepairManualSystem() {
                         setUploadFile(null);
                         setUploadName('');
                         setUploadGroup('');
-                        setUploadSet('');
                       }}
                       disabled={uploading}
                       className="flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"

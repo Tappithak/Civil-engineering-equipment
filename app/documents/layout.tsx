@@ -17,7 +17,7 @@ export default function RootLayout({
           <Topbar search={false}/>
         </div>
         {/* Main content area */}
-        <div>
+        <div className="pt-16 md:pt-20 min-h-screen">
           <div>{children}</div>
         </div>
         {/* Navigation bar */}

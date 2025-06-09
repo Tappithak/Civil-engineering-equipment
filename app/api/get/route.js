@@ -15,7 +15,10 @@ export async function GET(req) {
             range = 'data_menu!A1:G';
             break;
         case 'personnel':
-            range = 'personnel!A1:E';
+            range = 'personnel!A1:F';
+            break;
+        case 'documents':
+            range = 'documents!A1:F';
             break;
         default:
             range = 'data_equip!A1:I';

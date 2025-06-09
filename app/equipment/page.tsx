@@ -122,7 +122,7 @@ function Equipment() {
         case "generator":
           setNamePage("เครื่องกำเนิดไฟฟ้า");
           break;
-        case "frquency":
+        case "frequency":
           setNamePage("เครื่องกำเนิดความถี่");
           break;
         default:
@@ -555,9 +555,15 @@ function Equipment() {
                             <table className="w-full border-collapse border border-gray-300">
                               <thead className="sticky top-0 bg-gray-100 z-10">
                                 <tr className="bg-gray-100">
-                                  <th className="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-700">
-                                    ทะเบียน
-                                  </th>
+                                  {
+                                    namePage === "เครื่องทุ่นแรง" ? (
+                                      <th className="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-700">
+                                        ทะเบียน
+                                      </th>
+                                    ) : (
+                                      null
+                                    )
+                                  }
                                   <th className="border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-700">
                                     ตราอักษร
                                   </th>
@@ -583,9 +589,11 @@ function Equipment() {
                                       key={item.id}
                                       className="hover:bg-gray-50"
                                     >
-                                      <td className="border border-gray-300 px-4 py-2 text-sm text-gray-600">
-                                        {item.card || ""}
-                                      </td>
+                                      {namePage === "เครื่องทุ่นแรง" && (
+                                        <td className="border border-gray-300 px-4 py-2 text-sm text-gray-600">
+                                          {item.card || ""}
+                                        </td>
+                                      )}
                                       <td className="border border-gray-300 px-4 py-2 text-sm text-gray-600">
                                         {item.text || ""}
                                       </td>
@@ -820,9 +828,13 @@ function Equipment() {
                                 <table className="w-full text-sm">
                                   <thead className="bg-gray-50 sticky top-0 z-10">
                                     <tr>
-                                      <th className="px-3 py-2 text-left font-medium text-gray-700">
-                                        ทะเบียน
-                                      </th>
+                                      {
+                                        namePage === "เครื่องทุ่นแรง" ? (
+                                          <th className="px-3 py-2 text-left font-medium text-gray-700">
+                                            ทะเบียน
+                                          </th>
+                                        ) : null
+                                      }
                                       <th className="px-3 py-2 text-left font-medium text-gray-700">
                                         หน่วย
                                       </th>
@@ -844,9 +856,11 @@ function Equipment() {
                                             : "bg-gray-50"
                                         }
                                       >
-                                        <td className="px-3 py-2 text-gray-600">
-                                          {item.card || "-"}
-                                        </td>
+                                        {namePage === "เครื่องทุ่นแรง" && (
+                                          <td className="px-3 py-2 text-gray-600">
+                                            {item.card || "-"}
+                                          </td>
+                                        )}
                                         <td className="px-3 py-2 text-gray-600">
                                           {item.groups || "-"}
                                         </td>
