@@ -12,8 +12,11 @@ const LoginPage = () => {
   const [error, setError] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
   const [loginSuccess, setLoginSuccess] = React.useState(false);
-  const [userData, setUserData] = React.useState<LoginResponse["user"] | null>(null);
-
+  const [userData, setUserData] = React.useState<{
+    nameuser?: string;
+    username?: string;
+    [key: string]: any;
+  } | null>(null);
 
   interface LoginResponse {
     success: boolean;
@@ -25,9 +28,32 @@ const LoginPage = () => {
     };
   }
 
-  type HandleSubmitEvent = React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement> | undefined;
+  interface HandleSubmitEvent extends React.FormEvent<HTMLFormElement> {
+    key?: string;
+  }
 
-  const handleSubmit = async (e: HandleSubmitEvent): Promise<void> => {
+  interface LoginApiResponse {
+    success: boolean;
+    message?: string;
+    user?: {
+      nameuser?: string;
+      username?: string;
+      [key: string]: any;
+    };
+  }
+
+  
+  const goToMenu = () => {
+    // ไปหน้า menu โดยตรง
+    if (typeof window !== 'undefined') {
+      window.location.href = '/menu';
+    }
+  };
+
+
+  const handleSubmit = async (
+    e?: React.MouseEvent<HTMLButtonElement> | HandleSubmitEvent | React.KeyboardEvent<HTMLInputElement>
+  ) => {
     if (e && "preventDefault" in e && typeof e.preventDefault === "function") e.preventDefault();
     
     // ตรวจสอบข้อมูลก่อนส่ง
@@ -39,10 +65,8 @@ const LoginPage = () => {
     setIsLoading(true);
     setError("");
 
-    try {
-      console.log("Login attempt:", { username, password });
-      
-      const response = await fetch("/api/auth/login", {
+    try {      
+      const response: Response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,54 +77,66 @@ const LoginPage = () => {
         }),
       });
 
-      const data: LoginResponse = await response.json();
+      const data: LoginApiResponse = await response.json();
 
       if (data.success) {
         setLoginSuccess(true);
         setUserData(data.user || null);
         setError("");
-        // Redirect to menu or dashboard if needed
-        goToMenu();
+        goToMenu(); // ไปหน้า menu โดยตรง
+        // Middleware will handle redirect
       } else {
         setError(data.message || "เข้าสู่ระบบไม่สำเร็จ กรุณาตรวจสอบข้อมูลอีกครั้ง");
       }
     } catch (err) {
-      setError("เกิดข้อผิดพลาดในการเข้าสู่ระบบ กรุณาลองใหม่อีกครั้ง");
-      console.error("Login error:", err);
+      setError("เกิดข้อผิดพลาดในการเข้าสู่ระบบ");
     } finally {
       setIsLoading(false);
     }
   };
 
   // Handle Enter key press
-  interface KeyPressEvent extends React.KeyboardEvent<HTMLInputElement> {}
-
-  const handleKeyPress = (e: KeyPressEvent): void => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !isLoading) {
       handleSubmit(e);
     }
   };
 
-  const handleLogout = () => {
-    // ลบข้อมูลและกลับหน้า login
-    setLoginSuccess(false);
-    setUserData(null);
-    setUsername("");
-    setPassword("");
-    alert("ออกจากระบบเรียบร้อยแล้ว");
-  };
 
-  const goToMenu = () => {
-    // ไปหน้า menu โดยตรง
-    if (typeof window !== 'undefined') {
-      window.location.href = '/menu';
-    }
-  };
-
-  // ลบ Auth checking ออกหมด
+  // 🆕 ตรวจสอบการ login เมื่อโหลดหน้า (Middleware จะจัดการ auto-redirect)
   React.useEffect(() => {
-    // ไม่ตรวจสอบ auth อะไรเลย
-    console.log("Login page loaded - no auth checking");
+    const checkAuthStatus = async () => {
+      try {
+        console.log('🔍 Checking existing authentication...');
+        
+        const response = await fetch("/api/auth/verify", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            console.log('✅ Already logged in:', data.user);
+            setUserData(data.user);
+            setLoginSuccess(true);
+            
+            // ไม่ต้อง auto redirect เพราะ middleware จะจัดการให้
+            console.log('🛡️ Middleware will handle redirect');
+          } else {
+            console.log('❌ No valid session found');
+          }
+        } else {
+          console.log('❌ Auth check failed');
+        }
+      } catch (error) {
+        console.log('❌ Auth check error:', error);
+      }
+    };
+
+    checkAuthStatus();
   }, []);
 
   React.useEffect(() => {
@@ -113,7 +149,7 @@ const LoginPage = () => {
       })
         .then((response) => response.json())
         .then((data) => {
-          console.log("Data fetched successfully:", data);
+          console.log("Data fetched successfully");
         })
         .catch((error) => {
           console.error("Error fetching data:", error);
@@ -121,6 +157,7 @@ const LoginPage = () => {
     }
     getdata();
   }, []);
+
 
 
   return (
@@ -212,21 +249,6 @@ const LoginPage = () => {
               </div>
             </div>
 
-            {/* Remember Me Checkbox */}
-            {/* <div className="flex items-center">
-              <input
-                id="remember-me"
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="h-4 w-4 text-rose-600 focus:ring-rose-500 border-gray-300 rounded"
-                disabled={isLoading}
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                จดจำการเข้าสู่ระบบ
-              </label>
-            </div> */}
-
             <Button
               onClick={handleSubmit}
               disabled={isLoading}
@@ -241,7 +263,6 @@ const LoginPage = () => {
                 "SIGN IN"
               )}
             </Button>
-
           </div>
         </div>
       </div>

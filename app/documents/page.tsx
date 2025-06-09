@@ -57,7 +57,6 @@ export default function DocumentsSystem() {
       }
 
       const result = await response.json();
-      console.log('API Response:', result);
       
       // ตรวจสอบว่า result เป็น array โดยตรง หรือมี result.data
       const dataArray = Array.isArray(result) ? result : result.data;
@@ -73,7 +72,6 @@ export default function DocumentsSystem() {
           groupedData[groupKey].push(item);
         });
         setDocumentData(groupedData);
-        console.log('Grouped Data:', groupedData);
       } else {
         console.error('Invalid data format:', result);
       }

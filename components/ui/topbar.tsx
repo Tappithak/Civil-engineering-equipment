@@ -1,8 +1,8 @@
 //topbar.tsx
 import * as React from "react";
-import { Search, Menu, Bell, User } from "lucide-react";
+import { Search, Menu, Bell, User,House, Table, Map, LogOut } from "lucide-react";
 import { useSearch } from "@/contexts/SearchContext";
-import { listmenu } from "@/listmenu"; // Assuming you have a listmenu.js file that exports the menu items
+
 import {
   Sheet,
   SheetContent,
@@ -18,6 +18,48 @@ function Topbar({ search = true }: { search?: boolean }) {
   const [isFocused, setIsFocused] = React.useState(false);
   const router = useRouter();
   const [type, setType] = React.useState("");
+
+  const handlogout = async () => {
+       const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.ok) {
+        router.push('/');
+      } else {
+        console.error('Logout failed');
+      }
+  }
+  
+const listmenu = [
+  {
+    id: 1,
+    name: "Home",
+    icon: <House className="h-6 w-6" />,
+    path: "/menu",
+  },
+  {
+    id: 2,
+    name: "Categories",
+    icon: <Table className="h-6 w-6" />,
+    path: "/equipment",
+  },
+  {
+    id: 3,
+    name: "Map",
+    icon: <Map className="h-6 w-6" />,
+    path: "/mapallequipment",
+  },
+  {
+    id: 4,
+    name: "Log out",
+    icon: <LogOut className="h-6 w-6" />,
+    path: "/menu",
+  },
+];
+
 
   const handleSearch = () => {
     console.log("Searching for:", searchValue);
@@ -67,7 +109,11 @@ function Topbar({ search = true }: { search?: boolean }) {
                     className="flex text-xl items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg cursor-pointer"
                     onClick={() => {
                       if (item.path) {
-                        router.push(item.path + "?type=" + type); // Navigate to the path
+                        if (item.name === 'Log out') {
+                          handlogout(); // Call logout function
+                        }else{
+                           router.push(item.path + "?type=" + type); // Navigate to the path
+                        }   
                       } else {
                         console.log("No path defined for this item");
                       }
