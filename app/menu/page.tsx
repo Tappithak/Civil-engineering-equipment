@@ -40,7 +40,7 @@ const listmenu = [
   {
     id: 4,
     name: "กำลังพลชุดปฏิบัติงาน",
-    icon: "/menu4.png",
+    icon: "/personnel.png",
     description: "กำลังพลชุดปฏิบัติงานต่างๆ",
     path: "/personnel",
   },
@@ -56,7 +56,7 @@ const listmenu = [
 function menu() {
   const router = useRouter();
   return (
-    <div className="bg-gradient-to-br from-green-100 to-purple-100 h-auto px-4 flex items-center justify-center">
+    <div className="bg-gradient-to-br from-green-100 to-purple-100 min-h-screen px-4 flex items-center justify-center">
       <div className="flex flex-row  justify-center items-center gap-15">
         <div className="">
           <div>
