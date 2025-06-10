@@ -67,7 +67,6 @@ function VehicleMapContent() {
         setLoading(true);
         
         const typemenu = searchParams.get("type") || "";
-        console.log("Type menu:", typemenu);
 
         // Set page name
         switch (typemenu) {
@@ -93,14 +92,12 @@ function VehicleMapContent() {
         }
 
         const data = await response.json();
-        console.log("API Response:", data);
 
         // Filter data by type
         const filteredData: ApiVehicleData[] = typemenu 
           ? (data as ApiVehicleData[]).filter((item: ApiVehicleData) => item.type === typemenu)
           : data;
 
-        console.log("Filtered data:", filteredData);
 
         setVehicles(filteredData);
         setFilteredVehicles(filteredData);

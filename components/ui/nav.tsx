@@ -68,17 +68,16 @@ function nav() {
                     key={item.id}
                     className="flex flex-col items-center justify-center cursor-pointer hover:bg-gray-700 p-2 rounded"
                     onClick={() => {
-                      if (item.path) {
+                     if (item.path) {
                         if (item.name === 'Log out') {
                           handlogout();
                         }else{
                           router.push(item.path + "?type=" + type);
                         }
-                        
                       } else {
                         console.log("No path defined for this item");
                       }
-                    }}
+                  }}
                   >
                     {item.icon}
                     <span className="text-sm">{item.name}</span>
@@ -89,12 +88,15 @@ function nav() {
                   key={item.id}
                   className="flex flex-col items-center justify-center  cursor-pointer hover:bg-gray-700 p-2 rounded"
                   onClick={() => {
-                    if (item.path) {
-                      router.push(item.path + "?type=" + type);
-                    } else {
-                      // Handle logout or other actions
-                      console.log("Logging out...");
-                    }
+                     if (item.path) {
+                        if (item.name === 'Log out') {
+                          handlogout();
+                        }else{
+                          router.push(item.path + "?type=" + type);
+                        }
+                      } else {
+                        console.log("No path defined for this item");
+                      }
                   }}
                 >
                   {item.icon}

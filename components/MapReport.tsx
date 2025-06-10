@@ -326,8 +326,6 @@ const ThailandMap: React.FC<ThailandMapProps> = ({ data, selected }) => {
   };
 
   useEffect(() => {
-    console.log("Data:", data);
-    console.log("Selected:", selected);
     if (data && data.length > 0 && selected) {
       createChart(data, selected);
     }

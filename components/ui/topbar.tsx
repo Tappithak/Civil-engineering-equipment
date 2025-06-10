@@ -108,16 +108,16 @@ const listmenu = [
                     key={item.id}
                     className="flex text-xl items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg cursor-pointer"
                     onClick={() => {
-                      if (item.path) {
+                     if (item.path) {
                         if (item.name === 'Log out') {
-                          handlogout(); // Call logout function
+                          handlogout();
                         }else{
-                           router.push(item.path + "?type=" + type); // Navigate to the path
-                        }   
+                          router.push(item.path + "?type=" + type);
+                        }
                       } else {
                         console.log("No path defined for this item");
                       }
-                    }}
+                  }}
                   >
                     {item.icon}
                     <span className="text-gray-800 font-semibold">
@@ -130,12 +130,16 @@ const listmenu = [
                     key={item.id}
                     className="flex text-xl items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg cursor-pointer"
                     onClick={() => {
-                      if (item.path) {
-                        router.push(item.path + "?type=" + type); // Navigate to the path
+                     if (item.path) {
+                        if (item.name === 'Log out') {
+                          handlogout();
+                        }else{
+                          router.push(item.path + "?type=" + type);
+                        }
                       } else {
                         console.log("No path defined for this item");
                       }
-                    }}
+                  }}
                   >
                     {item.icon}
                     <span className="text-gray-800 font-semibold">

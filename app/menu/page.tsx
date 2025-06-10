@@ -80,19 +80,14 @@ function menu() {
               เพื่อสนับสนุนภารกิจกองทัพเรือ และรองรับสถานการณ์วิกฤต
             </p>
           </div>
-          <div className="w-full h-[450px] items-center justify-center mt-4">
+          <div className="w-full h-[300px] items-center justify-center mt-4">
             <Carousel
-              className="w-[300px] md:w-[700px] xl:w-[900px] m-auto"
-              plugins={[
-                Autoplay({
-                  delay: 2000,
-                }),
-              ]}
+              className="w-[240px] md:w-[700px] xl:w-[900px] m-auto"
             >
-              <CarouselContent className="-ml-4">
+              <CarouselContent className="flex gap-1">
                 {listmenu.map((item) => (
                   <CarouselItem className="p-4" key={item.id}>
-                    <Card className="w-[250px] h-[330px] bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:cursor-pointer"
+                    <Card className="w-[220px] md:w-[240px] h-[250px] bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:cursor-pointer"
                       onClick={() => router.push(item.path)}
                     >
                       <CardContent>
@@ -100,12 +95,9 @@ function menu() {
                           <img
                             src={item.icon}
                             alt="Logo"
-                            className="w-[200px] h-[200px]"
+                            className="w-[130px] h-[130px]"
                             style={{
                               objectFit: "contain",
-                              borderRadius: "50%",
-                              filter:
-                                "drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.4))",
                             }}
                           />
                         </div>

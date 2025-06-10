@@ -119,7 +119,6 @@ const LoginPage = () => {
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
-            console.log('✅ Already logged in:', data.user);
             setUserData(data.user);
             setLoginSuccess(true);
             
