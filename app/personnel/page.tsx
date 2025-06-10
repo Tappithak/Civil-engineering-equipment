@@ -735,7 +735,7 @@ export default function ThaiRepairManualSystem() {
                 <span>{uploading ? 'กำลังอัพโหลด...' : 'อัพโหลดไฟล์ใหม่'}</span>
               </button>
               
-              <button
+              {/* <button
                 onClick={() => {
                   console.log('จัดการไฟล์ clicked'); // Debug log
                   setShowManageModal(true);
@@ -760,7 +760,7 @@ export default function ThaiRepairManualSystem() {
               >
                 <Loader2 className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                 <span>รีเฟรช</span>
-              </button>
+              </button> */}
             </div>
 
             {manualData[selectedGroup]?.map((item) => (

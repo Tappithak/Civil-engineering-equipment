@@ -87,7 +87,7 @@ function menu() {
               <CarouselContent className="flex gap-1">
                 {listmenu.map((item) => (
                   <CarouselItem className="p-4" key={item.id}>
-                    <Card className="w-[220px] md:w-[240px] h-[250px] bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:cursor-pointer"
+                    <Card className="w-[220px] md:w-[240px] h-[280px] bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:cursor-pointer"
                       onClick={() => router.push(item.path)}
                     >
                       <CardContent>
@@ -95,7 +95,7 @@ function menu() {
                           <img
                             src={item.icon}
                             alt="Logo"
-                            className="w-[130px] h-[130px]"
+                            className="w-[180px] h-[180px]"
                             style={{
                               objectFit: "contain",
                             }}
@@ -107,9 +107,9 @@ function menu() {
                           <h1 className="text-1xl text-lime-600">
                             {item.name}
                           </h1>
-                          <p className="text-[12px] text-lime-800">
+                          {/* <p className="text-[12px] text-lime-800">
                             {item.description}
-                          </p>
+                          </p> */}
                         </div>
                       </CardFooter>
                     </Card>
