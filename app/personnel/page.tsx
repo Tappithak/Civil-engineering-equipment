@@ -1,6 +1,17 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft, FileText, ExternalLink, Upload, Edit, Trash2, Save, Loader2 } from 'lucide-react';
+"use client";
+import React, { useState, useEffect } from "react";
+import {
+  ArrowLeft,
+  FileText,
+  ExternalLink,
+  Upload,
+  Edit,
+  Trash2,
+  Save,
+  Loader2,
+} from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Item } from "@radix-ui/react-select";
 
 // TypeScript Interfaces
 interface ManualItem {
@@ -46,20 +57,26 @@ interface SearchableSelectProps {
   disabled?: boolean;
 }
 
-const SearchableSelect: React.FC<SearchableSelectProps> = ({ value, onChange, options, placeholder, disabled = false }) => {
+const SearchableSelect: React.FC<SearchableSelectProps> = ({
+  value,
+  onChange,
+  options,
+  placeholder,
+  disabled = false,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [filteredOptions, setFilteredOptions] = useState(options);
 
   useEffect(() => {
-    const filtered = options.filter(option =>
+    const filtered = options.filter((option) =>
       option.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredOptions(filtered);
   }, [searchTerm, options]);
 
   useEffect(() => {
-    setSearchTerm(value || '');
+    setSearchTerm(value || "");
   }, [value]);
 
   interface HandleSelectOption {
@@ -72,7 +89,8 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({ value, onChange, op
     setIsOpen(false);
   };
 
-  interface HandleInputChangeEvent extends React.ChangeEvent<HTMLInputElement> {}
+  interface HandleInputChangeEvent
+    extends React.ChangeEvent<HTMLInputElement> {}
 
   const handleInputChange: (e: HandleInputChangeEvent) => void = (e) => {
     const newValue = e.target.value;
@@ -95,8 +113,18 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({ value, onChange, op
           placeholder={placeholder}
         />
         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <svg
+            className="w-5 h-5 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
         </div>
       </div>
@@ -110,7 +138,13 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({ value, onChange, op
               className="w-full px-4 py-3 text-left hover:bg-blue-50 focus:bg-blue-50 transition-colors duration-150 first:rounded-t-xl last:rounded-b-xl"
               onMouseDown={() => handleSelect(option)}
             >
-              <span className={value === option ? 'font-medium text-blue-600' : 'text-gray-700'}>
+              <span
+                className={
+                  value === option
+                    ? "font-medium text-blue-600"
+                    : "text-gray-700"
+                }
+              >
                 {option}
               </span>
             </button>
@@ -128,20 +162,29 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({ value, onChange, op
 
 export default function ThaiRepairManualSystem() {
   // State Management
-  const [currentPage, setCurrentPage] = useState<'home' | 'group' | 'pdf'>('home');
+  const [currentPage, setCurrentPage] = useState<"home" | "group" | "pdf">(
+    "home"
+  );
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<ManualItem | null>(null);
   const [showUploadModal, setShowUploadModal] = useState<boolean>(false);
   const [showManageModal, setShowManageModal] = useState<boolean>(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [uploadName, setUploadName] = useState<string>('');
-  const [uploadGroup, setUploadGroup] = useState<string>('');
-  const [uploadSet, setUploadSet] = useState<string>('');
+  const [uploadName, setUploadName] = useState<string>("");
+  const [uploadGroup, setUploadGroup] = useState<string>("");
+  const [uploadSet, setUploadSet] = useState<string>("");
   const [editingItem, setEditingItem] = useState<ManualItem | null>(null);
   const [manualData, setManualData] = useState<ManualData>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [uploading, setUploading] = useState<boolean>(false);
-  const [uploadProgress, setUploadProgress] = useState<string>('');
+  const [uploadProgress, setUploadProgress] = useState<string>("");
+  interface AuthUser {
+    role?: string;
+    [key: string]: any;
+  }
+  const { user } = useAuth() as {
+    user: AuthUser | null;
+  };
 
   // API Functions
   const fetchManualData = async (): Promise<void> => {
@@ -159,15 +202,17 @@ export default function ThaiRepairManualSystem() {
       }
 
       const result = await response.json();
-      
+
       // ตรวจสอบว่า result เป็น array โดยตรง หรือมี result.data
       const dataArray = Array.isArray(result) ? result : result.data;
-      
+
       if (Array.isArray(dataArray)) {
         // Group data by category
         const groupedData: ManualData = {};
-        dataArray.forEach((item: ManualItem) => {
-          const groupKey = item.group || 'อื่นๆ';
+        dataArray
+        .filter(item => item.delete_at === "" || item.delete_at === undefined) // Filter out deleted items
+        .forEach((item: ManualItem) => {
+          const groupKey = item.group || "อื่นๆ";
           if (!groupedData[groupKey]) {
             groupedData[groupKey] = [];
           }
@@ -175,37 +220,67 @@ export default function ThaiRepairManualSystem() {
         });
         setManualData(groupedData);
       } else {
-        console.error('Invalid data format:', result);
+        console.error("Invalid data format:", result);
       }
     } catch (error) {
-      console.error('Fetch error:', error);
-      alert('เกิดข้อผิดพลาดในการเชื่อมต่อ API');
+      console.error("Fetch error:", error);
+      alert("เกิดข้อผิดพลาดในการเชื่อมต่อ API");
     } finally {
       setLoading(false);
     }
   };
 
   // ฟังก์ชันใหม่สำหรับอัพโหลดไฟล์ไปยัง Google Drive
-  const uploadFileToGoogleDrive = async (file: File, filename: string): Promise<UploadFileResponse> => {
+  const uploadFileToGoogleDrive = async (
+    file: File,
+    filename: string
+  ): Promise<UploadFileResponse> => {
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('filename', filename);
-    
+    formData.append("file", file);
+    formData.append("filename", filename);
+
     // ถ้ามี folder ID เฉพาะ สามารถเพิ่มได้
     // formData.append('folderId', 'your-folder-id');
 
-    const response = await fetch('/api/upload', {
-      method: 'POST',
+    const response = await fetch("/api/upload", {
+      method: "POST",
       body: formData, // ไม่ต้องใส่ Content-Type header เพราะ browser จะใส่ให้อัตโนมัติ
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      throw new Error(
+        errorData.message || `HTTP error! status: ${response.status}`
+      );
     }
 
     return await response.json();
   };
+
+  const updateFileInGoogleDrive = async (
+    fileId: string,
+    file: File,
+    filename: string
+  ): Promise<UploadFileResponse> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("filename", filename);
+    formData.append("fileId", fileId);
+
+    const response = await fetch("/api/update", {
+      method: "POST",
+      body: formData, // ไม่ต้องใส่ Content-Type header เพราะ browser จะใส่ให้อัตโนมัติ
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.message || `HTTP error! status: ${response.status}`
+      );
+    }
+
+    return await response.json();
+  }
 
   // ฟังก์ชันเพิ่มข้อมูลลงในฐานข้อมูล
   const addManualRecord = async (payload: UploadPayload): Promise<boolean> => {
@@ -223,19 +298,22 @@ export default function ThaiRepairManualSystem() {
       }
 
       const result: ApiResponse = await response.json();
-      
+
       if (result.success) {
         return true;
       } else {
-        throw new Error(result.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+        throw new Error(result.message || "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
       }
     } catch (error) {
-      console.error('Add record error:', error);
+      console.error("Add record error:", error);
       throw error;
     }
   };
 
-  const updateItem = async (id: string, updatedData: Partial<ManualItem>): Promise<boolean> => {
+  const updateItem = async (
+    id: string,
+    updatedData: Partial<ManualItem>
+  ): Promise<boolean> => {
     try {
       const response = await fetch(`/api/update/${id}`, {
         method: "PUT",
@@ -250,9 +328,9 @@ export default function ThaiRepairManualSystem() {
       }
 
       const result: ApiResponse = await response.json();
-      
+
       if (result.success) {
-        alert('แก้ไขข้อมูลเรียบร้อยแล้ว');
+        alert("แก้ไขข้อมูลเรียบร้อยแล้ว");
         await fetchManualData(); // Refresh data
         return true;
       } else {
@@ -260,8 +338,8 @@ export default function ThaiRepairManualSystem() {
         return false;
       }
     } catch (error) {
-      console.error('Update error:', error);
-      alert('เกิดข้อผิดพลาดในการแก้ไข');
+      console.error("Update error:", error);
+      alert("เกิดข้อผิดพลาดในการแก้ไข");
       return false;
     }
   };
@@ -280,9 +358,9 @@ export default function ThaiRepairManualSystem() {
       }
 
       const result: ApiResponse = await response.json();
-      
+
       if (result.success) {
-        alert('ลบไฟล์เรียบร้อยแล้ว');
+        alert("ลบไฟล์เรียบร้อยแล้ว");
         await fetchManualData(); // Refresh data
         return true;
       } else {
@@ -290,8 +368,8 @@ export default function ThaiRepairManualSystem() {
         return false;
       }
     } catch (error) {
-      console.error('Delete error:', error);
-      alert('เกิดข้อผิดพลาดในการลบ');
+      console.error("Delete error:", error);
+      alert("เกิดข้อผิดพลาดในการลบ");
       return false;
     }
   };
@@ -311,17 +389,17 @@ export default function ThaiRepairManualSystem() {
   // ฟังก์ชั่นบันทึกการแก้ไข (ปรับปรุงใหม่)
   const saveEditItem = async () => {
     if (!editingItem || !editingItem.fname.trim()) {
-      alert('กรุณากรอกชื่อไฟล์');
+      alert("กรุณากรอกชื่อไฟล์");
       return;
     }
 
     if (!editingItem.group.trim()) {
-      alert('กรุณาเลือกกลุ่ม');
+      alert("กรุณาเลือกกลุ่ม");
       return;
     }
 
     if (!editingItem.set.trim()) {
-      alert('กรุณาเลือกชุด');
+      alert("กรุณาเลือกชุด");
       return;
     }
 
@@ -336,13 +414,13 @@ export default function ThaiRepairManualSystem() {
         setEditingItem(null);
         // ถ้าแก้ไขกลุ่มใหม่ ให้กลับไปหน้าแรก
         if (editingItem.group !== selectedGroup) {
-          setCurrentPage('home');
+          setCurrentPage("home");
           setSelectedGroup(null);
         }
       }
     } catch (error) {
-      console.error('Error saving edit:', error);
-      alert('เกิดข้อผิดพลาดในการบันทึก');
+      console.error("Error saving edit:", error);
+      alert("เกิดข้อผิดพลาดในการบันทึก");
     }
   };
 
@@ -357,24 +435,32 @@ export default function ThaiRepairManualSystem() {
   }
 
   const handleDeleteItem: HandleDeleteItem = async (itemId) => {
-    const item = manualData[selectedGroup as string]?.find((i: ManualItem) => i.id === itemId);
+    const item = manualData[selectedGroup as string]?.find(
+      (i: ManualItem) => i.id === itemId
+    );
     if (!item) return;
 
-    if (confirm(`คุณต้องการลบไฟล์ "${item.fname}" หรือไม่?\n\nการดำเนินการนี้ไม่สามารถยกเลิกได้`)) {
+    if (
+      confirm(
+        `คุณต้องการลบไฟล์ "${item.fname}" หรือไม่?\n\nการดำเนินการนี้ไม่สามารถยกเลิกได้`
+      )
+    ) {
       try {
         const success = await deleteItem(itemId);
         if (success) {
           // ถ้าไฟล์ในกลุ่มหมดแล้ว ให้กลับไปหน้าแรก
-          const remainingFiles = manualData[selectedGroup as string]?.filter((i: ManualItem) => i.id !== itemId);
+          const remainingFiles = manualData[selectedGroup as string]?.filter(
+            (i: ManualItem) => i.id !== itemId
+          );
           if (!remainingFiles || remainingFiles.length === 0) {
-            setCurrentPage('home');
+            setCurrentPage("home");
             setSelectedGroup(null);
             setShowManageModal(false);
           }
         }
       } catch (error) {
-        console.error('Error deleting item:', error);
-        alert('เกิดข้อผิดพลาดในการลบไฟล์');
+        console.error("Error deleting item:", error);
+        alert("เกิดข้อผิดพลาดในการลบไฟล์");
       }
     }
   };
@@ -382,10 +468,10 @@ export default function ThaiRepairManualSystem() {
   // ฟังก์ชั่นรีเซ็ตฟอร์มอัพโหลด
   const resetUploadForm = () => {
     setUploadFile(null);
-    setUploadName('');
-    setUploadGroup('');
-    setUploadSet('');
-    setUploadProgress('');
+    setUploadName("");
+    setUploadGroup("");
+    setUploadSet("");
+    setUploadProgress("");
     setShowUploadModal(false);
   };
 
@@ -394,25 +480,26 @@ export default function ThaiRepairManualSystem() {
     const errors = [];
 
     if (!uploadFile) {
-      errors.push('กรุณาเลือกไฟล์ PDF');
-    } else if (uploadFile.type !== 'application/pdf') {
-      errors.push('กรุณาเลือกไฟล์ PDF เท่านั้น');
-    } else if (uploadFile.size > 50 * 1024 * 1024) { // 50MB
-      errors.push('ขนาดไฟล์ต้องไม่เกิน 50MB');
+      errors.push("กรุณาเลือกไฟล์ PDF");
+    } else if (uploadFile.type !== "application/pdf") {
+      errors.push("กรุณาเลือกไฟล์ PDF เท่านั้น");
+    } else if (uploadFile.size > 50 * 1024 * 1024) {
+      // 50MB
+      errors.push("ขนาดไฟล์ต้องไม่เกิน 50MB");
     }
 
     if (!uploadName.trim()) {
-      errors.push('กรุณากรอกชื่อไฟล์');
+      errors.push("กรุณากรอกชื่อไฟล์");
     } else if (uploadName.trim().length < 3) {
-      errors.push('ชื่อไฟล์ต้องมีอย่างน้อย 3 ตัวอักษร');
+      errors.push("ชื่อไฟล์ต้องมีอย่างน้อย 3 ตัวอักษร");
     }
 
     if (!uploadGroup.trim()) {
-      errors.push('กรุณาเลือกกลุ่ม');
+      errors.push("กรุณาเลือกกลุ่ม");
     }
 
     if (!uploadSet.trim()) {
-      errors.push('กรุณาเลือกชุด');
+      errors.push("กรุณาเลือกชุด");
     }
 
     return errors;
@@ -423,46 +510,52 @@ export default function ThaiRepairManualSystem() {
     // ตรวจสอบความถูกต้องของข้อมูล
     const validationErrors = validateUploadData();
     if (validationErrors.length > 0) {
-      alert('ข้อมูลไม่ถูกต้อง:\n' + validationErrors.join('\n'));
+      alert("ข้อมูลไม่ถูกต้อง:\n" + validationErrors.join("\n"));
       return;
     }
 
     setUploading(true);
-    setUploadProgress('');
+    setUploadProgress("");
 
     try {
       // ขั้นตอนที่ 1: อัพโหลดไฟล์ไปยัง Google Drive
-      setUploadProgress('กำลังอัพโหลดไฟล์ไปยัง Google Drive...');
+      setUploadProgress("กำลังอัพโหลดไฟล์ไปยัง Google Drive...");
       if (!uploadFile) {
-        throw new Error('ไม่พบไฟล์สำหรับอัพโหลด');
+        throw new Error("ไม่พบไฟล์สำหรับอัพโหลด");
       }
-      const uploadResult = await uploadFileToGoogleDrive(uploadFile, `${uploadName.trim()}.pdf`);
-      
+      const uploadResult = await uploadFileToGoogleDrive(
+        uploadFile,
+        `${uploadName.trim()}.pdf`
+      );
+
       // ขั้นตอนที่ 2: บันทึกข้อมูลลงในฐานข้อมูล
-      setUploadProgress('กำลังบันทึกข้อมูลลงฐานข้อมูล...');
+      setUploadProgress("กำลังบันทึกข้อมูลลงฐานข้อมูล...");
       const payload = {
         fname: uploadName.trim(),
         group: uploadGroup.trim(),
         set: uploadSet.trim(),
         path: uploadResult.file.webViewLink,
-        note: '',
+        note: "",
       };
 
       await addManualRecord(payload);
-      
+
       // ขั้นตอนที่ 3: รีเฟรชข้อมูล
-      setUploadProgress('กำลังอัพเดทข้อมูล...');
+      setUploadProgress("กำลังอัพเดทข้อมูล...");
       await fetchManualData();
-      
-      alert('อัพโหลดไฟล์เรียบร้อยแล้ว!');
+
+      alert("อัพโหลดไฟล์เรียบร้อยแล้ว!");
       resetUploadForm();
-      
     } catch (error) {
-      console.error('Upload error:', error);
-      alert(`เกิดข้อผิดพลาดในการอัพโหลด: ${error instanceof Error ? error.message : 'ไม่ทราบสาเหตุ'}`);
+      console.error("Upload error:", error);
+      alert(
+        `เกิดข้อผิดพลาดในการอัพโหลด: ${
+          error instanceof Error ? error.message : "ไม่ทราบสาเหตุ"
+        }`
+      );
     } finally {
       setUploading(false);
-      setUploadProgress('');
+      setUploadProgress("");
     }
   };
 
@@ -477,17 +570,18 @@ export default function ThaiRepairManualSystem() {
     }
 
     const term = searchTerm.toLowerCase();
-    return manualData[groupName].filter((item: ManualItem) => 
-      item.fname.toLowerCase().includes(term) ||
-      item.set.toLowerCase().includes(term) ||
-      (item.note && item.note.toLowerCase().includes(term))
+    return manualData[groupName].filter(
+      (item: ManualItem) =>
+        item.fname.toLowerCase().includes(term) ||
+        item.set.toLowerCase().includes(term) ||
+        (item.note && item.note.toLowerCase().includes(term))
     );
   };
 
   // ฟังก์ชั่นนับจำนวนไฟล์ในแต่ละกลุ่ม
   const getFileCountByGroup = () => {
     const counts: { [key: string]: number } = {};
-    Object.keys(manualData).forEach(group => {
+    Object.keys(manualData).forEach((group) => {
       counts[group] = manualData[group]?.length || 0;
     });
     return counts;
@@ -495,8 +589,8 @@ export default function ThaiRepairManualSystem() {
 
   // ฟังก์ชั่นเรียงลำดับไฟล์
   interface SortFilesOptions {
-    sortBy?: 'name' | 'set' | 'group';
-    order?: 'asc' | 'desc';
+    sortBy?: "name" | "set" | "group";
+    order?: "asc" | "desc";
   }
 
   interface SortableManualItem {
@@ -508,22 +602,22 @@ export default function ThaiRepairManualSystem() {
 
   const sortFiles = (
     files: SortableManualItem[],
-    sortBy: SortFilesOptions['sortBy'] = 'name',
-    order: SortFilesOptions['order'] = 'asc'
+    sortBy: SortFilesOptions["sortBy"] = "name",
+    order: SortFilesOptions["order"] = "asc"
   ): SortableManualItem[] => {
     const sorted = [...files].sort((a, b) => {
       let aValue: string | number, bValue: string | number;
-      
+
       switch (sortBy) {
-        case 'name':
+        case "name":
           aValue = a.fname.toLowerCase();
           bValue = b.fname.toLowerCase();
           break;
-        case 'set':
+        case "set":
           aValue = parseInt(a.set) || 0;
           bValue = parseInt(b.set) || 0;
           break;
-        case 'group':
+        case "group":
           aValue = a.group.toLowerCase();
           bValue = b.group.toLowerCase();
           break;
@@ -531,8 +625,8 @@ export default function ThaiRepairManualSystem() {
           return 0;
       }
 
-      if (aValue < bValue) return order === 'asc' ? -1 : 1;
-      if (aValue > bValue) return order === 'asc' ? 1 : -1;
+      if (aValue < bValue) return order === "asc" ? -1 : 1;
+      if (aValue > bValue) return order === "asc" ? 1 : -1;
       return 0;
     });
 
@@ -542,34 +636,40 @@ export default function ThaiRepairManualSystem() {
   // ฟังก์ชั่นส่งออกข้อมูลเป็น CSV
   const exportToCSV = () => {
     if (Object.keys(manualData).length === 0) {
-      alert('ไม่มีข้อมูลสำหรับส่งออก');
+      alert("ไม่มีข้อมูลสำหรับส่งออก");
       return;
     }
 
-    const headers = ['ID', 'ชื่อไฟล์', 'กลุ่ม', 'ชุด', 'ลิงก์', 'หมายเหตุ'];
+    const headers = ["ID", "ชื่อไฟล์", "กลุ่ม", "ชุด", "ลิงก์", "หมายเหตุ"];
     interface CsvRow extends Array<string | number | undefined> {}
 
     const rows: CsvRow[] = [];
 
-    Object.values(manualData).flat().forEach(item => {
-      rows.push([
-        item.id,
-        item.fname,
-        item.group,
-        item.set,
-        item.path,
-        item.note || ''
-      ]);
-    });
+    Object.values(manualData)
+      .flat()
+      .forEach((item) => {
+        rows.push([
+          item.id,
+          item.fname,
+          item.group,
+          item.set,
+          item.path,
+          item.note || "",
+        ]);
+      });
 
     const csvContent = [headers, ...rows]
-      .map(row => row.map(field => `"${field}"`).join(','))
-      .join('\n');
+      .map((row) => row.map((field) => `"${field}"`).join(","))
+      .join("\n");
 
-    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
+    const blob = new Blob(["\uFEFF" + csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `repair_manual_data_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `repair_manual_data_${
+      new Date().toISOString().split("T")[0]
+    }.csv`;
     link.click();
   };
 
@@ -585,9 +685,10 @@ export default function ThaiRepairManualSystem() {
 
   const checkDuplicateFile: CheckDuplicateFile = (fileName, groupName) => {
     if (!manualData[groupName]) return false;
-    
-    return manualData[groupName].some((item: ManualItem) => 
-      item.fname.toLowerCase().trim() === fileName.toLowerCase().trim()
+
+    return manualData[groupName].some(
+      (item: ManualItem) =>
+        item.fname.toLowerCase().trim() === fileName.toLowerCase().trim()
     );
   };
 
@@ -597,8 +698,8 @@ export default function ThaiRepairManualSystem() {
       setLoading(true);
       await fetchManualData();
     } catch (error) {
-      console.error('Error refreshing data:', error);
-      alert('เกิดข้อผิดพลาดในการรีเฟรชข้อมูล');
+      console.error("Error refreshing data:", error);
+      alert("เกิดข้อผิดพลาดในการรีเฟรชข้อมูล");
     } finally {
       setLoading(false);
     }
@@ -614,26 +715,27 @@ export default function ThaiRepairManualSystem() {
 
   // Load data on component mount
   useEffect(() => {
+    console.log("role:", user?.role);
     fetchManualData();
   }, []);
 
   // Event Handlers
   const handleGroupSelect = (groupName: string): void => {
     setSelectedGroup(groupName);
-    setCurrentPage('group');
+    setCurrentPage("group");
   };
 
   const handleItemSelect = (item: ManualItem): void => {
     setSelectedItem(item);
-    setCurrentPage('pdf');
+    setCurrentPage("pdf");
   };
 
   const goBack = (): void => {
-    if (currentPage === 'pdf') {
-      setCurrentPage('group');
+    if (currentPage === "pdf") {
+      setCurrentPage("group");
       setSelectedItem(null);
-    } else if (currentPage === 'group') {
-      setCurrentPage('home');
+    } else if (currentPage === "group") {
+      setCurrentPage("home");
       setSelectedGroup(null);
     }
   };
@@ -643,15 +745,17 @@ export default function ThaiRepairManualSystem() {
     return fileId ? `https://drive.google.com/file/d/${fileId}/preview` : url;
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleFileUpload = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ): void => {
     const file = event.target.files?.[0];
-    if (file && file.type === 'application/pdf') {
+    if (file && file.type === "application/pdf") {
       setUploadFile(file);
-      setUploadName(file.name.replace('.pdf', ''));
+      setUploadName(file.name.replace(".pdf", ""));
     } else {
-      alert('กรุณาเลือกไฟล์ PDF เท่านั้น');
+      alert("กรุณาเลือกไฟล์ PDF เท่านั้น");
       // รีเซ็ต input
-      event.target.value = '';
+      event.target.value = "";
     }
   };
 
@@ -668,7 +772,7 @@ export default function ThaiRepairManualSystem() {
   }
 
   // หน้าแรก - เลือกกลุ่ม
-  if (currentPage === 'home') {
+  if (currentPage === "home") {
     return (
       <div className="h-[calc(100dvh_-_80px)] pt-8 bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
         <div className="max-w-4xl mx-auto">
@@ -681,9 +785,13 @@ export default function ThaiRepairManualSystem() {
                 className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-8 border border-gray-200 hover:border-blue-300 group"
               >
                 <div className="text-center">
-                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
-                    index === 0 ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'
-                  }`}>
+                  <div
+                    className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
+                      index === 0
+                        ? "bg-orange-100 text-orange-600"
+                        : "bg-green-100 text-green-600"
+                    }`}
+                  >
                     <FileText className="w-8 h-8" />
                   </div>
                   <h3 className="text-xl font-semibold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">
@@ -702,7 +810,7 @@ export default function ThaiRepairManualSystem() {
   }
 
   // หน้าแสดงรายการในกลุ่ม
-  if (currentPage === 'group' && selectedGroup) {
+  if (currentPage === "group" && selectedGroup) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
         <div className="max-w-4xl mx-auto">
@@ -715,79 +823,90 @@ export default function ThaiRepairManualSystem() {
               <ArrowLeft className="w-5 h-5" />
               <span>กลับ</span>
             </button>
-            <h1 className="text-2xl font-bold text-gray-800">{selectedGroup}</h1>
+            <h1 className="text-2xl font-bold text-gray-800">
+              {selectedGroup}
+            </h1>
           </div>
 
           {/* Items Grid */}
           <div className="space-y-4 max-w-2xl mx-auto">
             {/* Action Buttons */}
-            <div className="flex gap-3 mb-6">
-              <button
-                onClick={() => setShowUploadModal(true)}
-                className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                disabled={uploading}
-              >
-                {uploading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Upload className="w-4 h-4" />
-                )}
-                <span>{uploading ? 'กำลังอัพโหลด...' : 'อัพโหลดไฟล์ใหม่'}</span>
-              </button>
-              
-              {/* <button
-                onClick={() => {
-                  console.log('จัดการไฟล์ clicked'); // Debug log
-                  setShowManageModal(true);
-                }}
-                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <Edit className="w-4 h-4" />
-                <span>จัดการไฟล์</span>
-              </button>
+            {user?.role === "admin" && (
+              <div className="flex gap-3 mb-6 flex-wrap">
+                <button
+                  onClick={() => setShowUploadModal(true)}
+                  className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  disabled={uploading}
+                >
+                  {uploading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Upload className="w-4 h-4" />
+                  )}
+                  <span>
+                    {uploading ? "กำลังอัพโหลด..." : "อัพโหลดไฟล์ใหม่"}
+                  </span>
+                </button>
 
-              <button
-                onClick={exportToCSV}
-                className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
-              >
-                <FileText className="w-4 h-4" />
-                <span>ส่งออก CSV</span>
-              </button>
+                <button
+                  onClick={() => setShowManageModal(true)}
+                  className="flex items-center gap-2 bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors"
+                >
+                  <Edit className="w-4 h-4" />
+                  <span>จัดการไฟล์</span>
+                </button>
 
-              <button
-                onClick={refreshData}
-                className="flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                <Loader2 className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                <span>รีเฟรช</span>
-              </button> */}
-            </div>
+                {/* <button
+                  onClick={exportToCSV}
+                  className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                >
+                  <FileText className="w-4 h-4" />
+                  <span>ส่งออก CSV</span>
+                </button> */}
 
-            {manualData[selectedGroup]?.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleItemSelect(item)}
-                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-gray-200 hover:border-blue-300 text-left group w-full"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <FileText className="w-6 h-6 text-blue-600" />
+                <button
+                  onClick={refreshData}
+                  className="flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  <Loader2
+                    className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+                  />
+                  <span>รีเฟรช</span>
+                </button>
+              </div>
+            )}
+
+            <div className="grid md:grid-cols-1 gap-4 overflow-auto max-h-[calc(100dvh_-_335px)]">
+              {manualData[selectedGroup]?.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleItemSelect(item)}
+                  className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-gray-200 hover:border-blue-300 text-left group w-full h-32"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <FileText className="w-6 h-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
+                          {item.fname}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          คลิกเพื่อดูเอกสาร PDF
+                        </p>
+                        {item.set && (
+                          <p className="text-xs text-gray-400">
+                            ชุดที่: {item.set}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
-                        {item.fname}
-                      </h3>
-                      <p className="text-sm text-gray-500">คลิกเพื่อดูเอกสาร PDF</p>
-                      {item.set && (
-                        <p className="text-xs text-gray-400">ชุดที่: {item.set}</p>
-                      )}
-                    </div>
+                    <ExternalLink className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
                   </div>
-                  <ExternalLink className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
-                </div>
-              </button>
-            ))}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Upload Modal */}
@@ -800,7 +919,9 @@ export default function ThaiRepairManualSystem() {
                     <Upload className="w-6 h-6" />
                     อัพโหลดไฟล์ใหม่
                   </h3>
-                  <p className="text-blue-100 mt-1">เพิ่มไฟล์ PDF คู่มือการซ่อมใหม่เข้าสู่ระบบ</p>
+                  <p className="text-blue-100 mt-1">
+                    เพิ่มไฟล์ PDF คู่มือการซ่อมใหม่เข้าสู่ระบบ
+                  </p>
                 </div>
 
                 <div className="p-8">
@@ -810,11 +931,13 @@ export default function ThaiRepairManualSystem() {
                       <label className="block text-sm font-semibold text-gray-700 mb-3">
                         📄 เลือกไฟล์ PDF
                       </label>
-                      <div className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
-                        uploadFile 
-                          ? 'border-green-400 bg-green-50' 
-                          : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                      } ${uploading ? 'pointer-events-none opacity-50' : ''}`}>
+                      <div
+                        className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
+                          uploadFile
+                            ? "border-green-400 bg-green-50"
+                            : "border-gray-300 hover:border-blue-400 hover:bg-blue-50"
+                        } ${uploading ? "pointer-events-none opacity-50" : ""}`}
+                      >
                         <input
                           type="file"
                           accept=".pdf"
@@ -822,16 +945,20 @@ export default function ThaiRepairManualSystem() {
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                           disabled={uploading}
                         />
-                        
+
                         {uploadFile ? (
                           <div className="space-y-3">
                             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
                               <FileText className="w-8 h-8 text-green-600" />
                             </div>
                             <div>
-                              <p className="text-green-700 font-medium">{uploadFile.name}</p>
+                              <p className="text-green-700 font-medium">
+                                {uploadFile.name}
+                              </p>
                               <p className="text-green-600 text-sm">
-                                ขนาด: {(uploadFile.size / (1024 * 1024)).toFixed(2)} MB
+                                ขนาด:{" "}
+                                {(uploadFile.size / (1024 * 1024)).toFixed(2)}{" "}
+                                MB
                               </p>
                             </div>
                           </div>
@@ -841,8 +968,12 @@ export default function ThaiRepairManualSystem() {
                               <Upload className="w-8 h-8 text-blue-600" />
                             </div>
                             <div>
-                              <p className="text-gray-700 font-medium">ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือก</p>
-                              <p className="text-gray-500 text-sm">รองรับเฉพาะไฟล์ PDF เท่านั้น</p>
+                              <p className="text-gray-700 font-medium">
+                                ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือก
+                              </p>
+                              <p className="text-gray-500 text-sm">
+                                รองรับเฉพาะไฟล์ PDF เท่านั้น
+                              </p>
                             </div>
                           </div>
                         )}
@@ -875,11 +1006,11 @@ export default function ThaiRepairManualSystem() {
                           value={uploadGroup}
                           onChange={setUploadGroup}
                           options={[
-                            'กำลังพลชุดปฏิบัติงานสำรวจอากาศ',
-                            'ชุดปฏิบัติการซ่อมชุดที่',
-                            'หน่วยบำรุงรักษา',
-                            'หน่วยจัดหา',
-                            'กลุ่มควบคุมคุณภาพ'
+                            "กำลังพลชุดปฏิบัติงานสำรวจอากาศ",
+                            "ชุดปฏิบัติการซ่อมชุดที่",
+                            "หน่วยบำรุงรักษา",
+                            "หน่วยจัดหา",
+                            "กลุ่มควบคุมคุณภาพ",
                           ]}
                           placeholder="ค้นหาหรือเลือกกลุ่ม..."
                           disabled={uploading}
@@ -894,7 +1025,18 @@ export default function ThaiRepairManualSystem() {
                         <SearchableSelect
                           value={uploadSet}
                           onChange={setUploadSet}
-                          options={['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']}
+                          options={[
+                            "1",
+                            "2",
+                            "3",
+                            "4",
+                            "5",
+                            "6",
+                            "7",
+                            "8",
+                            "9",
+                            "10",
+                          ]}
                           placeholder="เลือกชุด..."
                           disabled={uploading}
                         />
@@ -907,7 +1049,9 @@ export default function ThaiRepairManualSystem() {
                         <div className="flex items-center gap-3">
                           <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
                           <div className="flex-1">
-                            <p className="text-blue-700 font-medium">{uploadProgress}</p>
+                            <p className="text-blue-700 font-medium">
+                              {uploadProgress}
+                            </p>
                             <div className="w-full bg-blue-200 rounded-full h-2 mt-2">
                               <div className="bg-blue-600 h-2 rounded-full w-3/5 transition-all duration-1000"></div>
                             </div>
@@ -927,31 +1071,43 @@ export default function ThaiRepairManualSystem() {
                           {uploadName && (
                             <div className="flex items-center gap-2 text-emerald-700">
                               <span className="w-2 h-2 bg-emerald-400 rounded-full"></span>
-                              <span className="text-sm">ชื่อไฟล์: <strong>{uploadName}</strong></span>
+                              <span className="text-sm">
+                                ชื่อไฟล์: <strong>{uploadName}</strong>
+                              </span>
                             </div>
                           )}
                           {uploadGroup && (
                             <div className="flex items-center gap-2 text-emerald-700">
                               <span className="w-2 h-2 bg-emerald-400 rounded-full"></span>
-                              <span className="text-sm">กลุ่ม: <strong>{uploadGroup}</strong></span>
+                              <span className="text-sm">
+                                กลุ่ม: <strong>{uploadGroup}</strong>
+                              </span>
                             </div>
                           )}
                           {uploadSet && (
                             <div className="flex items-center gap-2 text-emerald-700">
                               <span className="w-2 h-2 bg-emerald-400 rounded-full"></span>
-                              <span className="text-sm">ชุด: <strong>{uploadSet}</strong></span>
+                              <span className="text-sm">
+                                ชุด: <strong>{uploadSet}</strong>
+                              </span>
                             </div>
                           )}
                         </div>
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Action Buttons */}
                   <div className="flex gap-4 mt-8 pt-6 border-t border-gray-200">
                     <button
                       onClick={submitUpload}
-                      disabled={uploading || !uploadFile || !uploadName.trim() || !uploadGroup.trim() || !uploadSet.trim()}
+                      disabled={
+                        uploading ||
+                        !uploadFile ||
+                        !uploadName.trim() ||
+                        !uploadGroup.trim() ||
+                        !uploadSet.trim()
+                      }
                       className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-6 rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2 shadow-lg"
                     >
                       {uploading ? (
@@ -975,7 +1131,7 @@ export default function ThaiRepairManualSystem() {
                       disabled={uploading}
                       className="flex-1 bg-gray-500 text-white py-3 px-6 rounded-xl hover:bg-gray-600 transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
                     >
-                      {uploading ? 'กำลังดำเนินการ...' : 'ยกเลิก'}
+                      {uploading ? "กำลังดำเนินการ..." : "ยกเลิก"}
                     </button>
                   </div>
                 </div>
@@ -993,26 +1149,37 @@ export default function ThaiRepairManualSystem() {
                     <Edit className="w-6 h-6" />
                     จัดการไฟล์ - {selectedGroup}
                   </h3>
-                  <p className="text-blue-100 mt-1">แก้ไขหรือลบไฟล์ในกลุ่มนี้</p>
+                  <p className="text-blue-100 mt-1">
+                    แก้ไขหรือลบไฟล์ในกลุ่มนี้
+                  </p>
                 </div>
 
                 <div className="p-6">
                   {/* Files List */}
                   <div className="space-y-4 max-h-96 overflow-y-auto">
-                    {manualData[selectedGroup || '']?.map((item) => (
-                      <div key={item.id} className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    {manualData[selectedGroup || ""]?.map((item) => (
+                      <div
+                        key={item.id}
+                        className="bg-gray-50 rounded-xl p-4 border border-gray-200"
+                      >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4 flex-1">
                             <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                               <FileText className="w-6 h-6 text-blue-600" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-semibold text-gray-800 truncate">{item.fname}</h4>
-                              <p className="text-sm text-gray-500">ชุดที่: {item.set}</p>
-                              <p className="text-xs text-gray-400 truncate">กลุ่ม: {item.group}</p>
+                              <h4 className="font-semibold text-gray-800 truncate">
+                                {item.fname}
+                              </h4>
+                              <p className="text-sm text-gray-500">
+                                ชุดที่: {item.set}
+                              </p>
+                              <p className="text-xs text-gray-400 truncate">
+                                กลุ่ม: {item.group}
+                              </p>
                             </div>
                           </div>
-                          
+
                           <div className="flex gap-2 ml-4">
                             <button
                               onClick={() => handleEditItem(item)}
@@ -1032,20 +1199,21 @@ export default function ThaiRepairManualSystem() {
                         </div>
                       </div>
                     ))}
-                    
-                    {(!manualData[selectedGroup || ''] || manualData[selectedGroup || ''].length === 0) && (
+
+                    {(!manualData[selectedGroup || ""] ||
+                      manualData[selectedGroup || ""].length === 0) && (
                       <div className="text-center py-8 text-gray-500">
                         <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                         <p>ไม่มีไฟล์ในกลุ่มนี้</p>
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Close Button */}
                   <div className="flex justify-end mt-6 pt-4 border-t border-gray-200">
                     <button
                       onClick={() => {
-                        console.log('ปิด modal'); // Debug log
+                        console.log("ปิด modal"); // Debug log
                         setShowManageModal(false);
                       }}
                       className="bg-gray-500 text-white px-6 py-2 rounded-xl hover:bg-gray-600 transition-colors"
@@ -1068,7 +1236,9 @@ export default function ThaiRepairManualSystem() {
                     <Edit className="w-6 h-6" />
                     แก้ไขข้อมูลไฟล์
                   </h3>
-                  <p className="text-orange-100 mt-1">แก้ไขชื่อไฟล์และข้อมูลกลุ่ม</p>
+                  <p className="text-orange-100 mt-1">
+                    แก้ไขชื่อไฟล์และข้อมูลกลุ่ม
+                  </p>
                 </div>
 
                 <div className="p-6">
@@ -1081,10 +1251,46 @@ export default function ThaiRepairManualSystem() {
                       <input
                         type="text"
                         value={editingItem.fname}
-                        onChange={(e) => setEditingItem({ ...editingItem, fname: e.target.value })}
+                        onChange={(e) =>
+                          setEditingItem({
+                            ...editingItem,
+                            fname: e.target.value,
+                          })
+                        }
                         className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
                         placeholder="กรอกชื่อไฟล์..."
                       />
+                    </div>
+
+                    {/* File Upload */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        📎 แนบไฟล์
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="file"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              updateFileInGoogleDrive(
+                                editingItem.id,
+                                file,
+                                file.name
+                              ).then(() => {
+                                setEditingItem({
+                                  ...editingItem,
+                                });
+                              });
+                            }
+                          }}
+                          className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100"
+                          accept="*/*"
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        เลือกไฟล์ที่ต้องการแนบ (รองรับไฟล์ทุกประเภท)
+                      </p>
                     </div>
 
                     {/* Group */}
@@ -1094,13 +1300,12 @@ export default function ThaiRepairManualSystem() {
                       </label>
                       <SearchableSelect
                         value={editingItem.group}
-                        onChange={(value) => setEditingItem({ ...editingItem, group: value })}
+                        onChange={(value) =>
+                          setEditingItem({ ...editingItem, group: value })
+                        }
                         options={[
-                          'กำลังพลชุดปฏิบัติงานสำรวจอากาศ',
-                          'ชุดปฏิบัติการซ่อมชุดที่',
-                          'หน่วยบำรุงรักษา',
-                          'หน่วยจัดหา',
-                          'กลุ่มควบคุมคุณภาพ'
+                          "กำลังพลชุดปฏิบัติงานสำรวจอากาศ",
+                          "ชุดปฏิบัติการซ่อมชุดที่"  
                         ]}
                         placeholder="ค้นหาหรือเลือกกลุ่ม..."
                       />
@@ -1113,8 +1318,21 @@ export default function ThaiRepairManualSystem() {
                       </label>
                       <SearchableSelect
                         value={editingItem.set}
-                        onChange={(value) => setEditingItem({ ...editingItem, set: value })}
-                        options={['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']}
+                        onChange={(value) =>
+                          setEditingItem({ ...editingItem, set: value })
+                        }
+                        options={[
+                          "1",
+                          "2",
+                          "3",
+                          "4",
+                          "5",
+                          "6",
+                          "7",
+                          "8",
+                          "9",
+                          "10",
+                        ]}
                         placeholder="เลือกชุด..."
                       />
                     </div>
@@ -1125,15 +1343,16 @@ export default function ThaiRepairManualSystem() {
                         🔗 ลิงก์ไฟล์
                       </label>
                       <div className="bg-gray-100 border border-gray-300 rounded-xl px-4 py-3 text-gray-600 text-sm">
-                        {editingItem.path.length > 60 
-                          ? `${editingItem.path.substring(0, 60)}...` 
-                          : editingItem.path
-                        }
+                        {editingItem.path.length > 60
+                          ? `${editingItem.path.substring(0, 60)}...`
+                          : editingItem.path}
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">ลิงก์ไฟล์ไม่สามารถแก้ไขได้</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        ลิงก์ไฟล์ไม่สามารถแก้ไขได้
+                      </p>
                     </div>
                   </div>
-                  
+
                   {/* Action Buttons */}
                   <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200">
                     <button
@@ -1160,7 +1379,7 @@ export default function ThaiRepairManualSystem() {
   }
 
   // หน้าแสดง PDF
-  if (currentPage === 'pdf' && selectedItem) {
+  if (currentPage === "pdf" && selectedItem) {
     return (
       <div className="min-h-screen bg-gray-100 pb-[80px]">
         {/* Header */}
@@ -1175,7 +1394,9 @@ export default function ThaiRepairManualSystem() {
                 <span>กลับ</span>
               </button>
               <div>
-                <h1 className="text-xl font-semibold text-gray-800">{selectedItem.fname}</h1>
+                <h1 className="text-xl font-semibold text-gray-800">
+                  {selectedItem.fname}
+                </h1>
                 <p className="text-sm text-gray-500">{selectedGroup}</p>
               </div>
             </div>
@@ -1185,7 +1406,10 @@ export default function ThaiRepairManualSystem() {
         {/* PDF Viewer */}
         <div className="p-4">
           <div className="max-w-6xl mx-auto">
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden" style={{ height: 'calc(100vh - 160px)' }}>
+            <div
+              className="bg-white rounded-lg shadow-lg overflow-hidden"
+              style={{ height: "calc(100vh - 160px)" }}
+            >
               <iframe
                 src={convertGoogleDriveUrl(selectedItem.path)}
                 className="w-full h-full border-0"

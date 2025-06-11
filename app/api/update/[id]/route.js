@@ -1,57 +1,44 @@
-// app/api/update/[id]/route.js
+// app/api/update/route.js  
+import { uploadFileToDrive } from '../../config';
 import { NextResponse } from 'next/server';
-import { getSheetData, updateSheetData } from '../../config.js';
 
-export async function PUT(request, { params }) {
+export async function POST(request) {
   try {
-    const { id } = params;
-    const updateData = await request.json();
-
-    // ค้นหา row index ของ item ที่ต้องการอัพเดต
-    const allData = await getSheetData('Sheet1!A2:F1000');
-    const rowIndex = allData?.findIndex(row => row[0] === id);
-
-    if (rowIndex === -1) {
+    const formData = await request.formData();
+    
+    const file = formData.get('file');
+    const filename = formData.get('filename') || file.name;
+    const fileId = formData.get('fileId'); // ID ของไฟล์เดิมที่จะแทนที่
+    
+    if (!file || !fileId) {
       return NextResponse.json(
-        { success: false, message: 'ไม่พบข้อมูลที่ต้องการแก้ไข' },
-        { status: 404 }
+        { message: 'File และ fileId จำเป็นต้องมี' },
+        { status: 400 }
       );
     }
 
-    // คำนวณ row number ใน sheet (เริ่มจาก row 2)
-    const sheetRowNumber = rowIndex + 2;
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
     
-    // เตรียมข้อมูลสำหรับอัพเดต
-    const currentRow = allData[rowIndex];
-    const updatedRow = [
-      id, // ID ไม่เปลี่ยน
-      updateData.fname || currentRow[1],
-      currentRow[2], // path ไม่เปลี่ยน
-      updateData.note !== undefined ? updateData.note : currentRow[3],
-      updateData.group || currentRow[4],
-      updateData.set || currentRow[5]
-    ];
-
-    // อัพเดตข้อมูลใน Google Sheets
-    await updateSheetData(`personnel!A${sheetRowNumber}:F${sheetRowNumber}`, [updatedRow]);
+    // อัปโหลดไฟล์ใหม่ (จริงๆแล้วจะสร้างไฟล์ใหม่)
+    const uploadedFile = await uploadFileToDrive(
+      buffer,
+      filename,
+      file.type
+    );
 
     return NextResponse.json({
-      success: true,
-      message: 'อัพเดตข้อมูลเรียบร้อยแล้ว',
-      data: {
-        id,
-        fname: updatedRow[1],
-        path: updatedRow[2],
-        note: updatedRow[3],
-        group: updatedRow[4],
-        set: updatedRow[5]
+      message: 'File updated successfully',
+      file: {
+        id: uploadedFile.id,
+        name: uploadedFile.name,
+        webViewLink: uploadedFile.webViewLink
       }
-    });
-
+    }, { status: 200 });
+    
   } catch (error) {
-    console.error('Update error:', error);
     return NextResponse.json(
-      { success: false, message: 'เกิดข้อผิดพลาดในการอัพเดต: ' + error.message },
+      { message: 'Error updating file', error: error.message },
       { status: 500 }
     );
   }

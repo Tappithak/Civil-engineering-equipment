@@ -32,11 +32,14 @@ export async function middleware(request) {
     try {
       const secret = new TextEncoder().encode(process.env.JWT_SECRET);
       const { payload } = await jwtVerify(token, secret);
+
+      console.log('📋 JWT Payload:', payload);
       
       // ส่งข้อมูล user ผ่าน headers ไปให้ API routes
-      response.headers.set('x-user-id', payload.userId || payload.id || '');
+      response.headers.set('x-user-id', payload.username || payload.id || '');
       response.headers.set('x-user-name', payload.nameuser || '');
-      
+      response.headers.set('x-user-role', payload.role || 'user');
+
 
       
     } catch (error) {

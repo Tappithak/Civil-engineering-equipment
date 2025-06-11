@@ -15,7 +15,7 @@ export async function POST(request) {
       );
     }
 
-    const usersData = await getSheetData("users!A:D");
+    const usersData = await getSheetData("users!A:E");
 
     if (!usersData || usersData.length === 0) {
       return NextResponse.json(
@@ -51,6 +51,7 @@ export async function POST(request) {
       username: userRow[0],
       nameuser: userRow[2],
       device: userRow[3] || "",
+      role: userRow[4] || "user",
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60),
     };
@@ -66,6 +67,7 @@ export async function POST(request) {
         username: userRow[0],
         nameuser: userRow[2],
         device: userRow[3] || "",
+        role: userRow[4] || "user",
       },
       token: token,
     });
@@ -83,6 +85,7 @@ export async function POST(request) {
     response.cookies.set('user_info', JSON.stringify({
       username: userRow[0],
       nameuser: userRow[2],
+      role: userRow[4] || "user",
       device: userRow[3] || "",
     }), {
       httpOnly: false,       // อนุญาตให้ client อ่านได้

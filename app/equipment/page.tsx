@@ -29,6 +29,8 @@ function Equipment() {
     img_id: string | number;
     Name?: string;
     type?: string;
+    count?: number;
+    Num?: number | string;
   };
 
   interface EquipmentData {
@@ -166,6 +168,7 @@ function Equipment() {
       const id = item["img_id"]?.toString().toLowerCase() || "";
       const searchTerm = searchValue.toLowerCase();
 
+
       return name.includes(searchTerm) || id.includes(searchTerm);
     });
   }, [listmenu, searchValue]);
@@ -178,7 +181,9 @@ function Equipment() {
   const CategoryView = () => (
     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2 lg:gap-4">
       {filteredList.length > 0 ? (
-        filteredList.map((item) => (
+        filteredList
+        .sort((a, b) => (Number(b["Num"]) || 0) - (Number(a["Num"]) || 0))
+        .map((item) => (
           <SheetTrigger
             onClick={() => setSelectedEquipment(item["Name"] ? item : null)}
             key={item["id"]}
@@ -240,7 +245,9 @@ function Equipment() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 overflow-auto">
             {filteredList.length > 0 ? (
-              filteredList.map((item, index) => (
+              filteredList
+              .sort((a, b) => (Number(b["Num"]) || 0) - (Number(a["Num"]) || 0))
+              .map((item, index) => (
                 <tr
                   key={item["id"]}
                   className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
